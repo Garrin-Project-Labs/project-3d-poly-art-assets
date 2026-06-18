@@ -14,22 +14,19 @@
     button { border: 0; border-radius: 999px; padding: 10px 14px; color: #101827; background: #f8cf5a; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(0,0,0,.25); }
     button.secondary { background: #9cc9ff; }
     #hint { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); color: rgba(229,237,247,.72); font-size: 12px; text-align: center; pointer-events: none; }
-    #reticle { position: fixed; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border: 2px solid rgba(248,207,90,.65); border-radius: 999px; box-shadow: 0 0 18px rgba(248,207,90,.25); opacity: 0; transition: opacity .12s ease; pointer-events: none; }
-    body.mouse-look #reticle { opacity: 1; }
     canvas { display: block; }
   </style>
 </head>
 <body>
   <div id="hud">
     <h1>⚔️ Knight Hero — Playable Prototype v1</h1>
-    <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move, <kbd>Q</kbd>/<kbd>E</kbd> strafe, <kbd>A</kbd>/<kbd>D</kbd> strafe while holding right mouse, <kbd>Space</kbd> jumps, <kbd>Shift</kbd> sprints. Hold right mouse for MMO mouse-look steering.</p>
+    <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk. Tap <kbd>Space</kbd> to jump, hold <kbd>Shift</kbd> to sprint. Drag to orbit the camera. The knight now has procedural walk, jump, cape sway, and a small 3D courtyard to explore.</p>
   </div>
   <div id="buttons">
     <button class="secondary" id="toggleCamera" type="button" tabindex="-1">Follow camera: off</button>
     <button id="resetScene" type="button" tabindex="-1">Reset hero</button>
   </div>
-  <div id="hint">WoW-style pass: snappy starts/stops, RMB steering, mouse-wheel zoom, smooth chase camera.</div>
-  <div id="reticle"></div>
+  <div id="hint">Playable in-browser with Three.js — no install needed.</div>
 
   <script type="importmap">
     {
@@ -42,6 +39,7 @@
 
   <script type="module">
     import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x101827);
@@ -57,8 +55,13 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
 
-    renderer.domElement.tabIndex = 0;
-    renderer.domElement.addEventListener('contextmenu', event => event.preventDefault());
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 1.55, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.07;
+    controls.maxPolarAngle = Math.PI * 0.49;
+    controls.minDistance = 3.4;
+    controls.maxDistance = 12;
 
     const hemi = new THREE.HemisphereLight(0x9cc9ff, 0x2e2417, 1.7);
     scene.add(hemi);
@@ -236,7 +239,7 @@
     const keys = new Set();
     addEventListener('keydown', event => {
       const key = event.key.toLowerCase();
-      if (['w','a','s','d','q','e','arrowup','arrowleft','arrowdown','arrowright','shift',' '].includes(key)) {
+      if (['w','a','s','d','arrowup','arrowleft','arrowdown','arrowright','shift',' '].includes(key)) {
         event.preventDefault();
         event.stopImmediatePropagation();
       }
@@ -266,39 +269,6 @@
       toggleCameraButton.textContent = `Follow camera: ${followCamera ? 'on' : 'off'}`;
       toggleCameraButton.blur();
     };
-
-    renderer.domElement.addEventListener('pointerdown', event => {
-      renderer.domElement.focus();
-      if (event.button === 2) pointer.rightDown = true;
-      if (event.button === 0) pointer.leftDown = true;
-      if (pointer.rightDown) document.body.classList.add('mouse-look');
-      renderer.domElement.setPointerCapture?.(event.pointerId);
-      event.preventDefault();
-    });
-    renderer.domElement.addEventListener('pointerup', event => {
-      if (event.button === 2) pointer.rightDown = false;
-      if (event.button === 0) pointer.leftDown = false;
-      if (!pointer.rightDown) document.body.classList.remove('mouse-look');
-      renderer.domElement.releasePointerCapture?.(event.pointerId);
-      event.preventDefault();
-    });
-    renderer.domElement.addEventListener('pointerleave', () => {
-      pointer.rightDown = false;
-      pointer.leftDown = false;
-      document.body.classList.remove('mouse-look');
-    });
-    renderer.domElement.addEventListener('pointermove', event => {
-      if (!pointer.rightDown) return;
-      const sensitivity = .0032;
-      cameraYaw -= event.movementX * sensitivity;
-      cameraPitch = THREE.MathUtils.clamp(cameraPitch + event.movementY * sensitivity * .72, -.82, .22);
-      event.preventDefault();
-    });
-    renderer.domElement.addEventListener('wheel', event => {
-      cameraDistance = THREE.MathUtils.clamp(cameraDistance + event.deltaY * .0045, 3.7, 9.2);
-      event.preventDefault();
-    }, { passive: false });
-
     resetSceneButton.onclick = () => {
       hero.position.set(0,0,0);
       hero.rotation.set(0,0,0);
@@ -306,10 +276,9 @@
       verticalVelocity = 0;
       isGrounded = true;
       jumpTime = 0;
-      cameraYaw = hero.rotation.y;
-      cameraPitch = -0.22;
-      cameraDistance = 6.4;
-      updateCamera(1, true);
+      camera.position.set(5.2, 3.5, 7.8);
+      controls.target.set(0,1.55,0);
+      controls.update();
       resetSceneButton.blur();
     };
 
@@ -318,10 +287,6 @@
     const cameraForward = new THREE.Vector3();
     const cameraRight = new THREE.Vector3();
     const up = new THREE.Vector3(0,1,0);
-    const pointer = { rightDown: false, leftDown: false };
-    let cameraYaw = hero.rotation.y;
-    let cameraPitch = -0.22;
-    let cameraDistance = 6.4;
     const gravity = 16.5;
     let walkTime = 0;
     let jumpTime = 0;
@@ -330,37 +295,20 @@
 
     function updateMovement(dt) {
       desired.set(0,0,0);
-      cameraForward.set(Math.sin(cameraYaw), 0, Math.cos(cameraYaw)).normalize();
-      cameraRight.set(Math.cos(cameraYaw), 0, -Math.sin(cameraYaw)).normalize();
+      camera.getWorldDirection(cameraForward);
+      cameraForward.y = 0;
+      cameraForward.normalize();
+      cameraRight.crossVectors(cameraForward, up).normalize();
 
-      const forwardKey = keys.has('w') || keys.has('arrowup');
-      const backKey = keys.has('s') || keys.has('arrowdown');
-      const leftKey = keys.has('a') || keys.has('arrowleft');
-      const rightKey = keys.has('d') || keys.has('arrowright');
-      const strafeLeftKey = keys.has('q');
-      const strafeRightKey = keys.has('e');
-      const mouseSteering = pointer.rightDown;
-
-      if (forwardKey || (pointer.leftDown && pointer.rightDown)) desired.add(cameraForward);
-      if (backKey) desired.sub(cameraForward);
-      if (strafeRightKey) desired.add(cameraRight);
-      if (strafeLeftKey) desired.sub(cameraRight);
-      if (mouseSteering) {
-        if (rightKey) desired.add(cameraRight);
-        if (leftKey) desired.sub(cameraRight);
-      } else {
-        const turnRate = 5.7 * dt;
-        if (leftKey) hero.rotation.y += turnRate;
-        if (rightKey) hero.rotation.y -= turnRate;
-        if ((leftKey || rightKey) && !forwardKey && !backKey) cameraYaw = hero.rotation.y;
-      }
+      if (keys.has('w') || keys.has('arrowup')) desired.add(cameraForward);
+      if (keys.has('s') || keys.has('arrowdown')) desired.sub(cameraForward);
+      if (keys.has('d') || keys.has('arrowright')) desired.add(cameraRight);
+      if (keys.has('a') || keys.has('arrowleft')) desired.sub(cameraRight);
 
       const moving = desired.lengthSq() > 0;
-      const speed = keys.has('shift') ? 6.2 : 4.2;
+      const speed = keys.has('shift') ? 5.0 : 3.0;
       if (moving) desired.normalize().multiplyScalar(speed);
-      const accel = moving ? 1 - Math.pow(.00000008, dt) : 1 - Math.pow(.000000005, dt);
-      velocity.lerp(desired, accel);
-      if (!moving && velocity.lengthSq() < .0025) velocity.set(0,0,0);
+      velocity.lerp(desired, 1 - Math.pow(.0008, dt));
       hero.position.addScaledVector(velocity, dt);
       if (!isGrounded || verticalVelocity > 0) {
         verticalVelocity -= gravity * dt;
@@ -379,15 +327,12 @@
       hero.position.z = THREE.MathUtils.clamp(hero.position.z, -limit, limit);
 
       const horizontalSpeed = velocity.length();
-      if (mouseSteering) {
-        hero.rotation.y = cameraYaw;
-      }
       if (horizontalSpeed > .06) {
-        const targetYaw = mouseSteering ? cameraYaw : Math.atan2(velocity.x, velocity.z);
+        const targetYaw = Math.atan2(velocity.x, velocity.z);
         let delta = targetYaw - hero.rotation.y;
         delta = Math.atan2(Math.sin(delta), Math.cos(delta));
-        hero.rotation.y += delta * (1 - Math.pow(.0000008, dt));
-        walkTime += dt * horizontalSpeed * 3.55;
+        hero.rotation.y += delta * (1 - Math.pow(.0002, dt));
+        walkTime += dt * horizontalSpeed * 3.2;
       } else {
         walkTime += dt * .6;
       }
@@ -434,39 +379,24 @@
       parts.plume.rotation.x = Math.sin(walkTime * 1.8) * .06;
     }
 
+    const followOffset = new THREE.Vector3(0, 3.15, -6.7);
     const desiredCamera = new THREE.Vector3();
     const desiredTarget = new THREE.Vector3();
-    const cameraTarget = new THREE.Vector3(0,1.55,0);
-    function updateCamera(dt, snap = false) {
-      desiredTarget.set(hero.position.x, hero.position.y + 1.48, hero.position.z);
-      if (followCamera && !pointer.rightDown) {
-        let delta = hero.rotation.y - cameraYaw;
-        delta = Math.atan2(Math.sin(delta), Math.cos(delta));
-        cameraYaw += delta * (1 - Math.pow(.03, dt));
+    function updateCamera(dt) {
+      desiredTarget.set(hero.position.x, hero.position.y + 1.45, hero.position.z);
+      if (followCamera) {
+        followOffset.set(0, 3.15, -6.7).applyAxisAngle(up, hero.rotation.y);
+        desiredCamera.copy(hero.position).add(followOffset);
+        camera.position.lerp(desiredCamera, 1 - Math.pow(.012, dt));
       }
-      const cp = Math.cos(cameraPitch);
-      desiredCamera.set(
-        desiredTarget.x - Math.sin(cameraYaw) * cp * cameraDistance,
-        desiredTarget.y + Math.sin(-cameraPitch) * cameraDistance + 1.0,
-        desiredTarget.z - Math.cos(cameraYaw) * cp * cameraDistance
-      );
-      const cameraTightness = pointer.rightDown ? .0000005 : .00008;
-      const targetTightness = pointer.rightDown ? .0000004 : .00005;
-      if (snap) {
-        camera.position.copy(desiredCamera);
-        cameraTarget.copy(desiredTarget);
-      } else {
-        camera.position.lerp(desiredCamera, 1 - Math.pow(cameraTightness, dt));
-        cameraTarget.lerp(desiredTarget, 1 - Math.pow(targetTightness, dt));
-      }
-      camera.lookAt(cameraTarget);
+      controls.target.lerp(desiredTarget, 1 - Math.pow(.004, dt));
+      controls.update();
     }
 
     addEventListener('resize', () => {
       camera.aspect = innerWidth / innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(innerWidth, innerHeight);
-      updateCamera(1, true);
     });
 
     const clock = new THREE.Clock();
