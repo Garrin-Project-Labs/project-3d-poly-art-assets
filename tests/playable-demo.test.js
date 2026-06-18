@@ -8,7 +8,9 @@ test('playable demo exposes optional catalog asset spawning without replacing mo
   assert.match(html, /import \{ ASSET_CATALOG, animateAsset, createAssetById \}/);
   assert.match(html, /id="spawnSelect"/);
   assert.match(html, /id="spawnAsset"/);
+  assert.match(html, /id="spawnAnimationSelect"/);
   assert.match(html, /id="clearSpawns"/);
+  assert.match(html, /const demoAnimations = \['auto', 'idle', 'walk', 'jump', 'hop', 'attack', 'cast', 'fly', 'wave', 'work', 'flame'\]/);
   assert.match(html, /spawnedAssets\.push\(asset\)/);
   assert.match(html, /animateAsset\(asset, asset\.userData\.previewAnimation/);
 });

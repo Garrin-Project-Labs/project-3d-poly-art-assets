@@ -690,10 +690,24 @@ export function animateAsset(asset, animation = 'idle', time = 0, delta = 0) {
     asset.scale.y = base * (1 - (1 - hop) * .08);
     asset.scale.x = asset.scale.z = base * (1 + (1 - hop) * .04);
   } else if (animation === 'attack') {
+    const snap = Math.max(0, Math.sin(time * 10));
+    const hasWeaponOrArm = Boolean(
+      asset.getObjectByName('right_arm') ||
+      asset.getObjectByName('sword') ||
+      asset.getObjectByName('axe_handle') ||
+      asset.getObjectByName('club_handle')
+    );
     animateNamed(asset, 'right_arm', 'rotation.x', -.7 + attack * .25);
     animateNamed(asset, 'sword', 'rotation.z', -.25 + attack * .45);
     animateNamed(asset, 'axe_handle', 'rotation.z', -.42 + attack * .35);
     animateNamed(asset, 'club_handle', 'rotation.z', -.55 + attack * .4);
+    if (!hasWeaponOrArm) {
+      asset.position.z += snap * .18;
+      asset.rotation.x = -snap * .12;
+      animateNamed(asset, 'head', 'position.z', (asset.getObjectByName('head')?.userData.basePosition?.z || 0) + snap * .16);
+      animateNamed(asset, 'body', 'position.z', (asset.getObjectByName('body')?.userData.basePosition?.z || 0) + snap * .12);
+      animateNamed(asset, 'torso', 'position.z', (asset.getObjectByName('torso')?.userData.basePosition?.z || 0) + snap * .12);
+    }
   } else if (animation === 'cast') {
     asset.position.y = bob;
     animateNamed(asset, 'floating_spell_orb', 'position.y', 1.55 + Math.sin(time * 3.2) * .12);
