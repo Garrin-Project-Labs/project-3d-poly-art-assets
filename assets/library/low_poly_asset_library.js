@@ -28,6 +28,12 @@ export const ASSET_CATALOG = [
   { id: 'cave_troll', name: 'Cave Troll', type: 'monster', role: 'brute', animations: ['idle', 'walk', 'attack'], tags: ['club', 'large', 'cave'] },
   { id: 'venom_serpent', name: 'Venom Serpent', type: 'monster', role: 'beast', animations: ['idle', 'walk', 'attack'], tags: ['snake', 'fangs', 'poison'] },
   { id: 'iron_golem', name: 'Iron Golem', type: 'monster', role: 'construct', animations: ['idle', 'walk', 'attack'], tags: ['metal', 'construct', 'heavy'] },
+  { id: 'kobold_spearman', name: 'Kobold Spearman', type: 'monster', role: 'skirmisher', animations: ['idle', 'walk', 'attack'], tags: ['humanoid', 'spear', 'small'] },
+  { id: 'mummy_guard', name: 'Mummy Guard', type: 'monster', role: 'undead', animations: ['idle', 'walk', 'attack'], tags: ['humanoid', 'wrapped', 'shield'] },
+  { id: 'harpy_screecher', name: 'Harpy Screecher', type: 'monster', role: 'flying', animations: ['idle', 'fly', 'attack'], tags: ['winged', 'talons', 'cliff'] },
+  { id: 'crystal_scarab', name: 'Crystal Scarab', type: 'monster', role: 'beast', animations: ['idle', 'walk', 'attack'], tags: ['crawler', 'crystal', 'cave'] },
+  { id: 'swamp_lurker', name: 'Swamp Lurker', type: 'monster', role: 'ambusher', animations: ['idle', 'hop', 'attack'], tags: ['quadruped', 'swamp', 'fangs'] },
+  { id: 'frost_sprite', name: 'Frost Sprite', type: 'monster', role: 'caster', animations: ['idle', 'fly', 'cast'], tags: ['winged', 'ice', 'spirit'] },
   { id: 'village_merchant', name: 'Village Merchant', type: 'npc', role: 'shopkeeper', animations: ['idle', 'wave'], tags: ['pack', 'coin', 'friendly'] },
   { id: 'town_blacksmith', name: 'Town Blacksmith', type: 'npc', role: 'crafter', animations: ['idle', 'work'], tags: ['apron', 'hammer', 'anvil'] },
   { id: 'quest_elder', name: 'Quest Elder', type: 'npc', role: 'quest-giver', animations: ['idle', 'wave'], tags: ['staff', 'robe', 'village'] },
@@ -70,7 +76,9 @@ const mats = (() => {
     leather: m(0x7a4a26), wood: m(0x7b4d2a), bone: m(0xd7cfb2), black: m(0x08090d),
     cloth: m(0x394769), brown: m(0x8a5a35), mushroom: m(0xc54b58), white: m(0xf1ead6), stone: m(0x777f8e),
     stoneDark: m(0x3d4655), grass: m(0x2f7d52), grassDark: m(0x245b42), orange: m(0xff8a2a, { emissive: 0x7a2500, emissiveIntensity: .25 }),
-    yellow: m(0xffd65a, { emissive: 0x6f4b00, emissiveIntensity: .35 }), shadow: m(0x171827), wolf: m(0x4f5968), bat: m(0x303248), ghost: m(0x9fd6ff, { transparent: true, opacity: .74, emissive: 0x2c77aa, emissiveIntensity: .22 }), iron: m(0x8d98a8, { metalness: .5, roughness: .65 }), bark: m(0x6b4a2c), poison: m(0x7ed957, { emissive: 0x1c6b22, emissiveIntensity: .18 })
+    yellow: m(0xffd65a, { emissive: 0x6f4b00, emissiveIntensity: .35 }), shadow: m(0x171827), wolf: m(0x4f5968), bat: m(0x303248), ghost: m(0x9fd6ff, { transparent: true, opacity: .74, emissive: 0x2c77aa, emissiveIntensity: .22 }), iron: m(0x8d98a8, { metalness: .5, roughness: .65 }), bark: m(0x6b4a2c), poison: m(0x7ed957, { emissive: 0x1c6b22, emissiveIntensity: .18 }),
+    ice: m(0x9fe7ff, { emissive: 0x2b8bc4, emissiveIntensity: .2 }), crystal: m(0x8dd7ff, { transparent: true, opacity: .86, emissive: 0x2a79bd, emissiveIntensity: .18 }),
+    swamp: m(0x3f6f46), moss: m(0x6b8f3b), wrap: m(0xc9b99a)
   };
 })();
 
@@ -157,6 +165,120 @@ function humanoidCore(g, bodyMat, headMat = mats.skin, opts = {}) {
 function addHumanoidArms(g, mat, spread = .42) {
   mesh(g, 'left_arm', cyl(.09,.12,.62,6), mat, [-.48,1.1,.08], [0,0,-spread]);
   mesh(g, 'right_arm', cyl(.09,.12,.62,6), mat, [.48,1.1,.08], [0,0,spread]);
+}
+
+function createMonsterHumanoidRig(id, opts = {}) {
+  const g = baseGroup(id, opts.scale ?? .9, 'monster');
+  g.userData.rig = 'monster_humanoid_v1';
+  g.userData.family = 'humanoid';
+  const bodyMat = opts.bodyMat || mats.leather;
+  const headMat = opts.headMat || bodyMat;
+  mesh(g, 'left_leg', cyl(.10,.13,.68,6), opts.legMat || bodyMat, [-.20,.34,0], [0,0,.04]);
+  mesh(g, 'right_leg', cyl(.10,.13,.68,6), opts.legMat || bodyMat, [.20,.34,0], [0,0,-.04]);
+  mesh(g, 'torso', cyl(.34,.44,.78,6), bodyMat, [0,1.02,0]);
+  mesh(g, 'head', sphere(opts.headRadius ?? .25,8,5), headMat, [0,1.55,.03], [0,0,0], opts.headScale || [1,.95,.9]);
+  const leftArm = mesh(g, 'left_arm', cyl(.07,.10,.56,6), opts.armMat || bodyMat, [-.45,1.05,.04], [0,0,-.36]);
+  const rightArm = mesh(g, 'right_arm', cyl(.07,.10,.56,6), opts.armMat || bodyMat, [.45,1.05,.04], [0,0,.36]);
+  const leftHand = anchor(leftArm, 'left_hand_anchor', [0,-.32,.04]);
+  const rightHand = anchor(rightArm, 'right_hand_anchor', [0,-.32,.04]);
+  mesh(leftHand, 'left_hand', sphere(.06,6,4), headMat);
+  mesh(rightHand, 'right_hand', sphere(.06,6,4), headMat);
+  anchor(leftHand, 'left_weapon_anchor');
+  anchor(rightHand, 'right_weapon_anchor');
+  return g;
+}
+
+function createQuadrupedRig(id, opts = {}) {
+  const g = baseGroup(id, opts.scale ?? .95, 'monster');
+  g.userData.rig = 'monster_quadruped_v1';
+  g.userData.family = 'quadruped';
+  const mat = opts.bodyMat || mats.brown;
+  mesh(g, 'body', sphere(opts.bodyRadius ?? .36,8,5), mat, [0,.58,0], [0,0,0], opts.bodyScale || [1.0,.72,1.35]);
+  mesh(g, 'chest', sphere(.28,7,4), opts.chestMat || mat, [0,.66,.45], [0,0,0], [1,.92,.9]);
+  mesh(g, 'head', sphere(opts.headRadius ?? .23,7,4), opts.headMat || mat, [0,.80,.82], [0,0,0], opts.headScale || [1,.82,1]);
+  for (const [name,x,z] of [['front_left',-.18,.38],['front_right',.18,.38],['back_left',-.18,-.42],['back_right',.18,-.42]]) {
+    mesh(g, `${name}_leg`, cyl(.055,.075,.45,5), opts.legMat || mat, [x,.28,z]);
+  }
+  return g;
+}
+
+function createWingedMonsterRig(id, opts = {}) {
+  const g = baseGroup(id, opts.scale ?? .9, 'monster');
+  g.userData.rig = 'monster_winged_v1';
+  g.userData.family = 'winged';
+  const mat = opts.bodyMat || mats.bat;
+  mesh(g, 'body', sphere(opts.bodyRadius ?? .25,7,4), mat, [0,.92,0], [0,0,0], opts.bodyScale || [1,.95,.86]);
+  mesh(g, 'head', sphere(opts.headRadius ?? .17,7,4), opts.headMat || mat, [0,1.12,.24]);
+  mesh(g, 'left_wing', box(opts.wingSize?.[0] ?? .72, opts.wingSize?.[1] ?? .06, opts.wingSize?.[2] ?? .34), opts.wingMat || mat, [-.45,.95,-.04], [0,.14,.32]);
+  mesh(g, 'right_wing', box(opts.wingSize?.[0] ?? .72, opts.wingSize?.[1] ?? .06, opts.wingSize?.[2] ?? .34), opts.wingMat || mat, [.45,.95,-.04], [0,-.14,-.32]);
+  return g;
+}
+
+function createSegmentedMonsterRig(id, opts = {}) {
+  const g = baseGroup(id, opts.scale ?? .9, 'monster');
+  g.userData.rig = 'monster_segmented_v1';
+  g.userData.family = 'segmented';
+  const mat = opts.bodyMat || mats.stone;
+  const count = opts.segments ?? 4;
+  for (let i=0;i<count;i++) {
+    const z = -.36 + i*.24;
+    const radius = .28 - Math.abs(i - (count-1)/2) * .025;
+    mesh(g, `segment_${i}`, sphere(radius,7,4), mat, [0,.46,z], [0,0,0], [1.1,.62,1]);
+  }
+  mesh(g, 'head', sphere(.22,7,4), opts.headMat || mat, [0,.52,.56]);
+  for (let i=0;i<3;i++) {
+    const z = -.16 + i*.24;
+    mesh(g, `left_leg_${i}`, cyl(.026,.036,.48,5), opts.legMat || mat, [-.28,.34,z], [Math.PI/2,0,.62]);
+    mesh(g, `right_leg_${i}`, cyl(.026,.036,.48,5), opts.legMat || mat, [.28,.34,z], [Math.PI/2,0,-.62]);
+  }
+  return g;
+}
+
+function addEyes(g, style = 'angry', opts = {}) {
+  const mat = opts.eyeMat || mats.gold;
+  const y = opts.y ?? 1.58;
+  const z = opts.z ?? .25;
+  const dx = opts.dx ?? .09;
+  const size = opts.size || [.07,.04,.025];
+  const tilt = style === 'angry' ? .22 : 0;
+  mesh(g, 'left_eye', box(...size), mat, [-dx,y,z], [0,0,-tilt]);
+  mesh(g, 'right_eye', box(...size), mat, [dx,y,z], [0,0,tilt]);
+}
+
+function monsterWeaponAnchor(g, side = 'right') {
+  const found = g.getObjectByName(`${side}_weapon_anchor`);
+  if (!found) throw new Error(`Missing ${side}_weapon_anchor on ${g.name}`);
+  return found;
+}
+
+function addMonsterWeapon(g, kind, side = 'right', opts = {}) {
+  const h = monsterWeaponAnchor(g, side);
+  const weapon = new THREE.Group();
+  weapon.name = `monster_${kind}`;
+  weapon.userData.isEquipment = true;
+  weapon.userData.equipmentId = kind;
+  if (kind === 'spear') {
+    mesh(weapon, 'spear_shaft', cyl(.025,.032,1.12,6), mats.wood, [0,.42,.05], [0,0,-.12]);
+    mesh(weapon, 'spear_tip', cone(.07,.22,5), mats.steel, [.03,1.03,.05], [0,0,-.12]);
+  } else if (kind === 'khopesh') {
+    mesh(weapon, 'khopesh_blade', box(.085,.62,.04), mats.steel, [0,.28,.05], [0,0,-.18]);
+    mesh(weapon, 'khopesh_hook', cone(.08,.18,5), mats.steel, [.08,.62,.05], [0,0,-.7]);
+    mesh(weapon, 'khopesh_guard', box(.18,.035,.04), mats.gold, [0,-.03,.05]);
+  } else if (kind === 'shield') {
+    mesh(weapon, 'scarab_shield', cyl(.25,.25,.07,8), mats.wrap, [0,.18,.10], [Math.PI/2,0,0]);
+    mesh(weapon, 'shield_boss', sphere(.07,6,4), mats.gold, [0,.18,.16]);
+  } else if (kind === 'claw') {
+    mesh(weapon, 'claw_1', cone(.035,.28,5), mats.bone, [-.06,.16,.12], [Math.PI/2,0,0]);
+    mesh(weapon, 'claw_2', cone(.035,.30,5), mats.bone, [.02,.17,.12], [Math.PI/2,0,0]);
+    mesh(weapon, 'claw_3', cone(.035,.26,5), mats.bone, [.10,.15,.12], [Math.PI/2,0,0]);
+  } else {
+    throw new Error(`Unknown monster weapon kind: ${kind}`);
+  }
+  weapon.position.set(...(opts.pos || [0,0,0]));
+  weapon.rotation.set(...(opts.rot || [0,0,0]));
+  weapon.scale.set(...(opts.scale || [1,1,1]));
+  h.add(weapon);
+  return weapon;
 }
 
 function addHeroCape(g, mat, size = [.74,.98,.08], y = 1.08) {
@@ -362,6 +484,76 @@ export function createDruid() {
   mesh(g, 'right_antler', cyl(.025,.035,.42,5), mats.wood, [.18,2.18,0], [0,0,.45]);
   attachHeroEquipment(g, 'druid_staff', 'right');
   mesh(g, 'floating_spell_orb', sphere(.10,7,4), mats.poison, [-.66,1.50,.22]);
+  return g;
+}
+
+
+export function createKoboldSpearman() {
+  const g = createMonsterHumanoidRig('kobold_spearman', { scale: .78, bodyMat: mats.leather, headMat: mats.orange, armMat: mats.orange, legMat: mats.brown, headRadius: .24, headScale: [1.05,.82,1.05] });
+  g.userData.variant = 'kobold';
+  addEyes(g, 'angry', { y: 1.58, z: .27, eyeMat: mats.yellow, dx: .08, size: [.065,.035,.024] });
+  mesh(g, 'snout', box(.18,.09,.16), mats.orange, [0,1.52,.28]);
+  mesh(g, 'left_horn', cone(.045,.20,5), mats.bone, [-.14,1.74,.02], [0,0,.28]);
+  mesh(g, 'right_horn', cone(.045,.20,5), mats.bone, [.14,1.74,.02], [0,0,-.28]);
+  mesh(g, 'scale_crest', box(.10,.30,.05), mats.red, [0,1.80,-.10], [.45,0,0]);
+  addMonsterWeapon(g, 'spear', 'right');
+  return g;
+}
+
+export function createMummyGuard() {
+  const g = createMonsterHumanoidRig('mummy_guard', { scale: .92, bodyMat: mats.wrap, headMat: mats.wrap, armMat: mats.wrap, legMat: mats.wrap });
+  g.userData.variant = 'mummy';
+  addEyes(g, 'calm', { y: 1.58, z: .26, eyeMat: mats.ghost, dx: .075, size: [.055,.035,.024] });
+  for (let i=0;i<5;i++) mesh(g, `wrap_band_${i}`, box(.54 - i*.035,.045,.055), i % 2 ? mats.bone : mats.wrap, [0,.78+i*.17,.39], [0,0,(i%2 ? -.16 : .14)]);
+  mesh(g, 'loose_wrap_tail', box(.09,.42,.04), mats.wrap, [-.33,.68,.32], [0,0,.22]);
+  addMonsterWeapon(g, 'khopesh', 'right');
+  addMonsterWeapon(g, 'shield', 'left');
+  return g;
+}
+
+export function createHarpyScreecher() {
+  const g = createWingedMonsterRig('harpy_screecher', { scale: .92, bodyMat: mats.brown, wingMat: mats.leather, headMat: mats.skin, bodyScale: [.82,1.05,.75], wingSize: [.86,.06,.42] });
+  g.userData.variant = 'harpy';
+  addEyes(g, 'angry', { y: 1.16, z: .38, eyeMat: mats.yellow, dx: .07, size: [.055,.032,.022] });
+  mesh(g, 'beak', cone(.065,.22,5), mats.gold, [0,1.10,.43], [Math.PI/2,0,0]);
+  mesh(g, 'hair_crest', cone(.11,.28,5), mats.red, [0,1.32,.08]);
+  mesh(g, 'left_talon', cone(.045,.22,5), mats.bone, [-.14,.56,.10], [Math.PI,0,0]);
+  mesh(g, 'right_talon', cone(.045,.22,5), mats.bone, [.14,.56,.10], [Math.PI,0,0]);
+  return g;
+}
+
+export function createCrystalScarab() {
+  const g = createSegmentedMonsterRig('crystal_scarab', { scale: .92, bodyMat: mats.stoneDark, headMat: mats.stone, legMat: mats.darkSteel, segments: 5 });
+  g.userData.variant = 'crystal_scarab';
+  addEyes(g, 'calm', { y: .56, z: .78, eyeMat: mats.ice, dx: .08, size: [.05,.03,.02] });
+  mesh(g, 'back_crystal_large', cone(.14,.42,5), mats.crystal, [0,.82,.02]);
+  mesh(g, 'back_crystal_left', cone(.09,.30,5), mats.crystal, [-.18,.74,-.12], [0,0,-.18]);
+  mesh(g, 'back_crystal_right', cone(.09,.30,5), mats.crystal, [.18,.74,-.12], [0,0,.18]);
+  mesh(g, 'mandible_left', cone(.035,.22,5), mats.steel, [-.12,.46,.78], [Math.PI/2,0,.28]);
+  mesh(g, 'mandible_right', cone(.035,.22,5), mats.steel, [.12,.46,.78], [Math.PI/2,0,-.28]);
+  return g;
+}
+
+export function createSwampLurker() {
+  const g = createQuadrupedRig('swamp_lurker', { scale: .96, bodyMat: mats.swamp, chestMat: mats.moss, headMat: mats.swamp, bodyScale: [1.15,.62,1.45], headScale: [1.15,.7,1.05] });
+  g.userData.variant = 'swamp_lurker';
+  addEyes(g, 'angry', { y: .82, z: 1.04, eyeMat: mats.yellow, dx: .10, size: [.06,.035,.022] });
+  mesh(g, 'wide_mouth', box(.32,.045,.035), mats.black, [0,.72,1.05]);
+  mesh(g, 'left_fang', cone(.035,.18,5), mats.bone, [-.11,.68,1.08], [Math.PI,0,0]);
+  mesh(g, 'right_fang', cone(.035,.18,5), mats.bone, [.11,.68,1.08], [Math.PI,0,0]);
+  mesh(g, 'moss_back', box(.42,.07,.75), mats.moss, [0,.88,-.08], [0,0,.03]);
+  mesh(g, 'tail', cone(.08,.62,6), mats.swamp, [0,.58,-.88], [-Math.PI/2,0,0]);
+  return g;
+}
+
+export function createFrostSprite() {
+  const g = createWingedMonsterRig('frost_sprite', { scale: .74, bodyMat: mats.ice, wingMat: mats.ghost, headMat: mats.ice, bodyScale: [.72,1.1,.72], wingSize: [.58,.04,.30] });
+  g.userData.variant = 'frost_sprite';
+  addEyes(g, 'calm', { y: 1.16, z: .40, eyeMat: mats.white, dx: .055, size: [.045,.028,.02] });
+  mesh(g, 'ice_crown', cone(.14,.20,5), mats.crystal, [0,1.34,.02]);
+  mesh(g, 'floating_spell_orb', sphere(.085,7,4), mats.ice, [0,1.04,.56]);
+  mesh(g, 'left_ice_shard', cone(.055,.26,5), mats.crystal, [-.18,.78,.10], [0,0,-.35]);
+  mesh(g, 'right_ice_shard', cone(.055,.26,5), mats.crystal, [.18,.78,.10], [0,0,.35]);
   return g;
 }
 
@@ -792,6 +984,12 @@ export function createAssetById(id) {
     cave_troll: createCaveTroll,
     venom_serpent: createVenomSerpent,
     iron_golem: createIronGolem,
+    kobold_spearman: createKoboldSpearman,
+    mummy_guard: createMummyGuard,
+    harpy_screecher: createHarpyScreecher,
+    crystal_scarab: createCrystalScarab,
+    swamp_lurker: createSwampLurker,
+    frost_sprite: createFrostSprite,
     village_merchant: createVillageMerchant,
     town_blacksmith: createTownBlacksmith,
     quest_elder: createQuestElder,

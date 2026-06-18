@@ -65,3 +65,6 @@ Current target: move core heroes/monsters from `prototype` toward `game-ready`. 
 - [ ] Tighten polygons on core monsters: goblin, orc, skeleton, slime, wolf.
 - [ ] Promote polished assets to `game-ready` tier.
 - [ ] Add GLB/export path after the visual language stabilizes.
+
+- [x] Add reusable monster family rigs for humanoid, quadruped, winged, and segmented/crawler monsters.
+- [x] Add monster polish batch: kobold spearman, mummy guard, harpy screecher, crystal scarab, swamp lurker, frost sprite.

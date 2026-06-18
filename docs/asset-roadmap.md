@@ -61,3 +61,5 @@ Add per-asset detail pages with copy-paste import snippets, then add the next en
 - [x] Remove separate blocky hero feet/boots; grounded legs now end cleanly at the floor.
 - [ ] Tighten polygons on core monsters.
 - [ ] Add readiness badges to catalog cards.
+
+- [x] Add first reusable monster family rigs plus six new monsters.
