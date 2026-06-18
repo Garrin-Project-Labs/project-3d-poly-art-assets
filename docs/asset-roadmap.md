@@ -37,7 +37,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 - [x] NPCs: merchant, blacksmith, quest elder.
 - [x] Environment: pine tree, rocks, crate, campfire, ruin arch, forest clearing, dungeon room.
 - [x] Add 10 more monsters: spider, boar, bandit, cultist, ghost, treant, minotaur, troll, serpent, golem.
-- [ ] Add 8 more environment pieces: bridge, fence, signpost, well, house, tower, cave mouth, portal.
+- [x] Add 8 more environment pieces: bridge, fence, signpost, well, house, tower, cave mouth, portal.
 - [ ] Add hero variants: healer, necromancer, barbarian, druid.
 
 ### 4. Demo integration

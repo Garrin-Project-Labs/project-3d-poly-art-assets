@@ -48,7 +48,7 @@ Each catalog asset has a small import wrapper in `assets/snippets/<asset-id>.js`
 - Heroes: knight, mage, ranger, paladin, rogue.
 - Monsters: goblin, orc, slime, skeleton, mushroom imp, dire wolf, cave bat, ember whelp, spider, boar, bandit, cultist, ghost, treant, minotaur, troll, serpent, golem.
 - NPCs: merchant, blacksmith, quest elder.
-- Environment props/kits: pine tree, rocks, crate, campfire, ruin arch, forest clearing, dungeon room.
+- Environment props/kits: pine tree, rocks, crate, campfire, ruin arch, forest clearing, dungeon room, bridge, fence, signpost, well, house, tower, cave mouth, portal.
 
 ## Quality gate
 
