@@ -615,6 +615,8 @@ function finalizeAsset(asset) {
     obj.userData.baseScale = obj.scale.clone();
   });
   asset.userData.gameplay = measureAsset(asset);
+  asset.userData.attachments = createAttachmentPoints(asset, asset.userData.gameplay);
+  asset.userData.quality = measureQuality(asset);
   return asset;
 }
 
@@ -632,6 +634,60 @@ function measureAsset(asset) {
     radius: Math.max(size.x, size.z) / 2,
     height: size.y,
     groundOffset: -bounds.min.y
+  };
+}
+
+
+function createAttachmentPoints(asset, gameplay) {
+  const attachments = {
+    root: { x: 0, y: 0, z: 0 },
+    center: gameplay.center,
+    overhead: { x: gameplay.center.x, y: gameplay.bounds.max.y + 0.25, z: gameplay.center.z },
+    front: { x: gameplay.center.x, y: gameplay.center.y, z: gameplay.bounds.max.z + 0.15 }
+  };
+  const addPartPoint = (key, names, fallback) => {
+    const found = names.map(name => asset.getObjectByName(name)).find(Boolean);
+    attachments[key] = found ? plainVector(found.getWorldPosition(new THREE.Vector3())) : fallback;
+  };
+  const chestFallback = { x: gameplay.center.x, y: gameplay.bounds.min.y + gameplay.height * 0.58, z: gameplay.center.z };
+  const headFallback = { x: gameplay.center.x, y: gameplay.bounds.min.y + gameplay.height * 0.82, z: gameplay.center.z };
+  addPartPoint('head', ['head', 'skull', 'helmet_dome'], headFallback);
+  addPartPoint('chest', ['torso', 'body', 'chest_plate'], chestFallback);
+  addPartPoint('leftHand', ['left_arm', 'left_gauntlet', 'left_wisp_arm'], { x: gameplay.bounds.min.x, y: chestFallback.y, z: gameplay.center.z });
+  addPartPoint('rightHand', ['right_arm', 'right_gauntlet', 'right_wisp_arm'], { x: gameplay.bounds.max.x, y: chestFallback.y, z: gameplay.center.z });
+  addPartPoint('weapon', ['sword', 'axe_handle', 'club_handle', 'staff', 'bow_string', 'hammer_handle'], attachments.rightHand);
+  addPartPoint('vfx', ['staff_crystal', 'floating_spell_orb', 'portal_core', 'flame_outer', 'core'], attachments.front);
+  if (asset.userData.assetType === 'environment') {
+    attachments.entry = { x: gameplay.center.x, y: 0, z: gameplay.bounds.max.z + 0.2 };
+    attachments.exit = { x: gameplay.center.x, y: 0, z: gameplay.bounds.min.z - 0.2 };
+    attachments.top = { x: gameplay.center.x, y: gameplay.bounds.max.y, z: gameplay.center.z };
+  }
+  return attachments;
+}
+
+function measureQuality(asset) {
+  const materials = new Set();
+  let meshCount = 0;
+  let triangleCount = 0;
+  let namedPartCount = 0;
+  asset.traverse(obj => {
+    if (obj.name) namedPartCount++;
+    if (!obj.isMesh) return;
+    meshCount++;
+    if (Array.isArray(obj.material)) obj.material.forEach(mat => materials.add(mat.uuid));
+    else if (obj.material) materials.add(obj.material.uuid);
+    const position = obj.geometry?.attributes?.position;
+    if (obj.geometry?.index) triangleCount += obj.geometry.index.count / 3;
+    else if (position) triangleCount += position.count / 3;
+  });
+  return {
+    tier: 'prototype',
+    forwardAxis: '+Z',
+    origin: 'grounded',
+    meshCount,
+    triangleCount,
+    materialCount: materials.size,
+    namedPartCount
   };
 }
 
@@ -666,6 +722,16 @@ export function getAssetMeta(id) {
 export function getAssetGameplayMeta(assetOrId) {
   const asset = typeof assetOrId === 'string' ? createAssetById(assetOrId) : assetOrId;
   return asset?.userData?.gameplay;
+}
+
+export function getAssetAttachmentPoints(assetOrId) {
+  const asset = typeof assetOrId === 'string' ? createAssetById(assetOrId) : assetOrId;
+  return asset?.userData?.attachments;
+}
+
+export function getAssetQualityMeta(assetOrId) {
+  const asset = typeof assetOrId === 'string' ? createAssetById(assetOrId) : assetOrId;
+  return asset?.userData?.quality;
 }
 
 export function animateAsset(asset, animation = 'idle', time = 0, delta = 0) {

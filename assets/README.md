@@ -38,6 +38,8 @@ Reusable procedural low-poly assets for browser games using Three.js.
 - `createAssetPack(ids?, spacing?)` — returns a group containing many assets laid out in a grid.
 - `getAssetMeta(id)` — returns catalog metadata for one asset.
 - `getAssetGameplayMeta(assetOrId)` — returns bounds, size, center, radius, height, and ground offset for placement/collision.
+- `getAssetAttachmentPoints(assetOrId)` — returns root, center, overhead, front, hand/weapon/VFX/environment attachment points.
+- `getAssetQualityMeta(assetOrId)` — returns readiness tier, forward axis, origin rule, mesh count, triangle count, material count, and named part count.
 - `animateAsset(asset, animation, time, delta)` — applies simple procedural animation.
 
 ## Downloadable snippets
