@@ -46,7 +46,7 @@ Environment assets should expose:
 - `game-ready` — coherent silhouette, scale, bounds, attachments, and animation behavior.
 - `hero` — flagship model with extra polish and stronger silhouette.
 
-Current target: move core heroes/monsters from `prototype` toward `game-ready`.
+Current target: move core heroes/monsters from `prototype` toward `game-ready`. Heroes now share `standard_hero_v1`, a single consistent humanoid base with class-specific gear kits layered on top.
 
 ## To-do
 
@@ -55,7 +55,7 @@ Current target: move core heroes/monsters from `prototype` toward `game-ready`.
 - [x] Add quality metadata.
 - [x] Add tests for readiness metadata.
 - [ ] Add readiness badges to catalog cards.
-- [ ] Tighten polygons on core heroes: knight, mage, ranger, paladin, rogue.
+- [x] Tighten polygons on core heroes with `standard_hero_v1`: knight, mage, ranger, paladin, rogue.
 - [ ] Tighten polygons on core monsters: goblin, orc, skeleton, slime, wolf.
 - [ ] Promote polished assets to `game-ready` tier.
 - [ ] Add GLB/export path after the visual language stabilizes.

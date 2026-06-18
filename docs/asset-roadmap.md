@@ -50,3 +50,11 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 ## Recommended next slice
 
 Add per-asset detail pages with copy-paste import snippets, then add the next environment batch. That will make the pack easier for other projects to consume without reading the full source file.
+
+### 5. Asset readiness / polish
+
+- [x] Define an asset readiness contract.
+- [x] Add attachment and quality metadata.
+- [x] Refactor core heroes onto a standardized modular hero rig.
+- [ ] Tighten polygons on core monsters.
+- [ ] Add readiness badges to catalog cards.
