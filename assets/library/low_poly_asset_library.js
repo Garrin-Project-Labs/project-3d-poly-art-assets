@@ -61,6 +61,20 @@ const box = (w, h, d) => new THREE.BoxGeometry(w, h, d, 1, 1, 1);
 const cyl = (r1, r2, h, s = 6) => new THREE.CylinderGeometry(r1, r2, h, s, 1, false);
 const cone = (r, h, s = 6) => new THREE.ConeGeometry(r, h, s, 1, false);
 const sphere = (r, w = 8, h = 5) => new THREE.SphereGeometry(r, w, h);
+const footGeo = (w = .34, h = .18, d = .52) => {
+  const geo = new THREE.BoxGeometry(w, h, d, 1, 1, 1);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    const top = y > 0;
+    const front = z > 0;
+    if (top) pos.setX(i, pos.getX(i) * (front ? .68 : .82));
+    if (front) pos.setY(i, pos.getY(i) - h * .16);
+  }
+  geo.computeVertexNormals();
+  return geo;
+};
 
 function mesh(parent, name, geo, mat, pos = [0,0,0], rot = [0,0,0], scale = [1,1,1]) {
   const m = new THREE.Mesh(geo, mat);
@@ -108,8 +122,8 @@ function createStandardHeroRig(id, kit = {}) {
   const trim = kit.trimMat || mats.gold;
 
   // Shared proportions: all heroes use this same base silhouette/origin/forward axis.
-  mesh(g, 'left_boot', box(.34,.20,.50), bootMat, [-.24,.10,.05], [0,.08,0]);
-  mesh(g, 'right_boot', box(.34,.20,.50), bootMat, [.24,.10,.05], [0,-.08,0]);
+  mesh(g, 'left_foot', footGeo(.34,.18,.54), bootMat, [-.24,.10,.08], [0,.08,0]);
+  mesh(g, 'right_foot', footGeo(.34,.18,.54), bootMat, [.24,.10,.08], [0,-.08,0]);
   mesh(g, 'left_leg', cyl(.12,.15,.62,6), armor, [-.24,.50,0], [0,0,.04]);
   mesh(g, 'right_leg', cyl(.12,.15,.62,6), armor, [.24,.50,0], [0,0,-.04]);
   mesh(g, 'hip_belt', box(.82,.16,.42), kit.beltMat || mats.leather, [0,.84,.02]);
