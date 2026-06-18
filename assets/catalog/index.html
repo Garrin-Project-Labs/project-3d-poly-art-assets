@@ -13,6 +13,9 @@
     a { color:var(--blue); }
     h1 { margin:8px 0 8px; font-size:clamp(34px,6vw,64px); letter-spacing:-.05em; line-height:.95; }
     p { color:var(--muted); font-size:17px; line-height:1.5; max-width:76ch; }
+    .toolbar { max-width:1120px; margin:0 auto 18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .toolbar a, .toolbar button { border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:9px 12px; background:rgba(255,255,255,.07); color:var(--text); text-decoration:none; font-weight:800; cursor:pointer; }
+    .toolbar button.active { background:var(--gold); color:#101827; }
     .grid { max-width:1120px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
     .card { min-height:360px; border:1px solid rgba(255,255,255,.1); border-radius:24px; background:rgba(23,34,53,.84); overflow:hidden; box-shadow:0 22px 70px rgba(0,0,0,.28); }
     .viewport { height:250px; background:linear-gradient(#18243a,#101827); }
@@ -28,8 +31,17 @@
   <header>
     <a href="../../index.html">← Back to live preview</a>
     <h1>Asset Catalog</h1>
-    <p>Standalone procedural low-poly asset definitions. These are not wired into the walking demo yet; they exist as reusable browser assets for future scenes and gameplay prototypes.</p>
+    <p>Standalone procedural low-poly asset definitions. These are reusable browser assets for future scenes and gameplay prototypes. Import the library, call <code>createAssetById(id)</code>, and optionally drive it with <code>animateAsset()</code>.</p>
   </header>
+  <nav class="toolbar" aria-label="Catalog filters">
+    <a href="../README.md">Usage README</a>
+    <a href="../../docs/asset-roadmap.md">Roadmap</a>
+    <button class="active" data-filter="all">All</button>
+    <button data-filter="hero">Heroes</button>
+    <button data-filter="monster">Monsters</button>
+    <button data-filter="npc">NPCs</button>
+    <button data-filter="environment">Environment</button>
+  </nav>
   <main class="grid" id="catalog"></main>
 
   <script type="importmap">
@@ -42,26 +54,39 @@
   </script>
   <script type="module">
     import * as THREE from 'three';
-    import { ASSET_CATALOG, createAssetById } from '../library/low_poly_asset_library.js';
+    import { ASSET_CATALOG, createAssetById, animateAsset } from '../library/low_poly_asset_library.js';
 
     const catalog = document.getElementById('catalog');
 
+    const previews = [];
     for (const item of ASSET_CATALOG) {
       const card = document.createElement('article');
       card.className = 'card';
+      card.dataset.type = item.type;
       card.innerHTML = `
         <div class="viewport" id="view-${item.id}"></div>
         <div class="copy">
           <div class="eyebrow">${item.type} · ${item.role}</div>
           <div class="name">${item.name}</div>
-          <div class="meta">Asset id: <code>${item.id}</code></div>
+          <div class="meta">Asset id: <code>${item.id}</code><br>Animations: ${item.animations.join(', ')}</div>
           <div class="tags">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
         </div>`;
       catalog.appendChild(card);
-      mountPreview(card.querySelector('.viewport'), item.id);
+      previews.push(mountPreview(card.querySelector('.viewport'), item));
     }
 
-    function mountPreview(el, id) {
+    document.querySelectorAll('[data-filter]').forEach(button => {
+      button.onclick = () => {
+        document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+        button.classList.add('active');
+        const filter = button.dataset.filter;
+        document.querySelectorAll('.card').forEach(card => {
+          card.hidden = filter !== 'all' && card.dataset.type !== filter;
+        });
+      };
+    });
+
+    function mountPreview(el, item) {
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x101827);
       const camera = new THREE.PerspectiveCamera(40, 1, .1, 50);
@@ -80,7 +105,7 @@
       key.castShadow = true;
       scene.add(key);
 
-      const asset = createAssetById(id);
+      const asset = createAssetById(item.id);
       asset.position.y = .02;
       scene.add(asset);
 
@@ -104,8 +129,10 @@
       const clock = new THREE.Clock();
       function animate() {
         const t = clock.getElapsedTime();
-        asset.rotation.y = t * .55;
-        asset.position.y = .02 + Math.sin(t * 2.2) * .025;
+        const delta = clock.getDelta();
+        const animation = item.animations.includes('walk') ? 'walk' : item.animations.includes('fly') ? 'fly' : item.animations.includes('flame') ? 'flame' : item.animations.includes('hop') ? 'hop' : 'idle';
+        asset.rotation.y += delta * .35;
+        animateAsset(asset, animation, t, delta);
         renderer.render(scene, camera);
         requestAnimationFrame(animate);
       }
