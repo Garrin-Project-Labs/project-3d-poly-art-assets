@@ -61,14 +61,6 @@ const box = (w, h, d) => new THREE.BoxGeometry(w, h, d, 1, 1, 1);
 const cyl = (r1, r2, h, s = 6) => new THREE.CylinderGeometry(r1, r2, h, s, 1, false);
 const cone = (r, h, s = 6) => new THREE.ConeGeometry(r, h, s, 1, false);
 const sphere = (r, w = 8, h = 5) => new THREE.SphereGeometry(r, w, h);
-const shoeTipGeo = (r = .13, length = .34) => {
-  const geo = new THREE.ConeGeometry(r, length, 6, 1, false);
-  geo.rotateX(Math.PI / 2); // point the low-poly cone forward on +Z
-  geo.scale(1, .58, 1);
-  geo.computeVertexNormals();
-  return geo;
-};
-
 function mesh(parent, name, geo, mat, pos = [0,0,0], rot = [0,0,0], scale = [1,1,1]) {
   const m = new THREE.Mesh(geo, mat);
   m.name = name;
@@ -115,10 +107,8 @@ function createStandardHeroRig(id, kit = {}) {
   const trim = kit.trimMat || mats.gold;
 
   // Shared proportions: all heroes use this same base silhouette/origin/forward axis.
-  mesh(g, 'left_foot', shoeTipGeo(.13,.34), bootMat, [-.24,.07,.12], [0,.08,0]);
-  mesh(g, 'right_foot', shoeTipGeo(.13,.34), bootMat, [.24,.07,.12], [0,-.08,0]);
-  mesh(g, 'left_leg', cyl(.12,.15,.62,6), armor, [-.24,.50,0], [0,0,.04]);
-  mesh(g, 'right_leg', cyl(.12,.15,.62,6), armor, [.24,.50,0], [0,0,-.04]);
+  mesh(g, 'left_leg', cyl(.13,.16,.78,6), armor, [-.24,.39,0], [0,0,.04]);
+  mesh(g, 'right_leg', cyl(.13,.16,.78,6), armor, [.24,.39,0], [0,0,-.04]);
   mesh(g, 'hip_belt', box(.82,.16,.42), kit.beltMat || mats.leather, [0,.84,.02]);
   mesh(g, 'torso', cyl(.38,.50,.88,6), armor, [0,1.24,0]);
   mesh(g, 'chest_inset', box(.42,.46,.045), cloth, [0,1.28,.42]);
@@ -141,11 +131,8 @@ function createStandardHeroRig(id, kit = {}) {
 
 
 function humanoidCore(g, bodyMat, headMat = mats.skin, opts = {}) {
-  const bootMat = opts.bootMat || mats.darkSteel;
-  mesh(g, 'left_boot', box(.28,.18,.42), bootMat, [-.22,.09,.03]);
-  mesh(g, 'right_boot', box(.28,.18,.42), bootMat, [.22,.09,.03]);
-  mesh(g, 'left_leg', cyl(.11,.13,.58,6), bodyMat, [-.22,.46,0]);
-  mesh(g, 'right_leg', cyl(.11,.13,.58,6), bodyMat, [.22,.46,0]);
+  mesh(g, 'left_leg', cyl(.11,.13,.74,6), bodyMat, [-.22,.37,0]);
+  mesh(g, 'right_leg', cyl(.11,.13,.74,6), bodyMat, [.22,.37,0]);
   mesh(g, 'torso', cyl(.39,.48,.86,6), bodyMat, [0,1.1,0]);
   mesh(g, 'head', sphere(.28,8,5), headMat, [0,1.75,0]);
 }
