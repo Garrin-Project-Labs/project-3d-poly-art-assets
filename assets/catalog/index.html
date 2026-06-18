@@ -85,7 +85,7 @@
         <div class="copy">
           <div class="eyebrow">${item.type} · ${item.role}</div>
           <div class="name">${item.name}</div>
-          <div class="meta">Asset id: <code>${item.id}</code><br>Animations: ${item.animations.join(', ')}</div>
+          <div class="meta">Asset id: <code>${item.id}</code><br>Animations: ${item.animations.join(', ')}<br><a href="../snippets/${item.id}.js" download>Download JS snippet</a></div>
           <div class="tags">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
         </div>`;
       catalog.appendChild(card);
