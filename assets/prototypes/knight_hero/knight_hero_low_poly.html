@@ -23,8 +23,8 @@
     <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk. Tap <kbd>Space</kbd> to jump, hold <kbd>Shift</kbd> to sprint. Drag to orbit the camera. The knight now has procedural walk, jump, cape sway, and a small 3D courtyard to explore.</p>
   </div>
   <div id="buttons">
-    <button class="secondary" id="toggleCamera">Follow camera: off</button>
-    <button id="resetScene">Reset hero</button>
+    <button class="secondary" id="toggleCamera" type="button" tabindex="-1">Follow camera: off</button>
+    <button id="resetScene" type="button" tabindex="-1">Reset hero</button>
   </div>
   <div id="hint">Playable in-browser with Three.js — no install needed.</div>
 
@@ -241,7 +241,7 @@
       const key = event.key.toLowerCase();
       if (['w','a','s','d','arrowup','arrowleft','arrowdown','arrowright','shift',' '].includes(key)) {
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
       }
       if (key === ' ' && isGrounded) {
         verticalVelocity = 6.2;
@@ -249,15 +249,27 @@
         jumpTime = 0;
       }
       keys.add(key);
-    });
-    addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
+    }, { capture: true });
+    addEventListener('keyup', event => keys.delete(event.key.toLowerCase()), { capture: true });
 
     let followCamera = false;
-    document.getElementById('toggleCamera').onclick = () => {
+    const toggleCameraButton = document.getElementById('toggleCamera');
+    const resetSceneButton = document.getElementById('resetScene');
+    for (const button of [toggleCameraButton, resetSceneButton]) {
+      button.addEventListener('keydown', event => {
+        if (event.key === ' ' || event.key === 'Enter') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, { capture: true });
+      button.addEventListener('pointerup', () => button.blur());
+    }
+    toggleCameraButton.onclick = () => {
       followCamera = !followCamera;
-      document.getElementById('toggleCamera').textContent = `Follow camera: ${followCamera ? 'on' : 'off'}`;
+      toggleCameraButton.textContent = `Follow camera: ${followCamera ? 'on' : 'off'}`;
+      toggleCameraButton.blur();
     };
-    document.getElementById('resetScene').onclick = () => {
+    resetSceneButton.onclick = () => {
       hero.position.set(0,0,0);
       hero.rotation.set(0,0,0);
       velocity.set(0,0,0);
@@ -267,6 +279,7 @@
       camera.position.set(5.2, 3.5, 7.8);
       controls.target.set(0,1.55,0);
       controls.update();
+      resetSceneButton.blur();
     };
 
     const velocity = new THREE.Vector3();
