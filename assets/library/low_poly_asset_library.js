@@ -14,6 +14,16 @@ export const ASSET_CATALOG = [
   { id: 'dire_wolf', name: 'Dire Wolf', type: 'monster', role: 'beast', animations: ['idle', 'walk', 'attack'], tags: ['quadruped', 'fangs', 'forest'] },
   { id: 'cave_bat', name: 'Cave Bat', type: 'monster', role: 'flying', animations: ['idle', 'fly'], tags: ['wings', 'cave', 'swarm'] },
   { id: 'ember_whelp', name: 'Ember Whelp', type: 'monster', role: 'dragon', animations: ['idle', 'fly', 'attack'], tags: ['wings', 'horns', 'fire'] },
+  { id: 'giant_spider', name: 'Giant Spider', type: 'monster', role: 'beast', animations: ['idle', 'walk', 'attack'], tags: ['arachnid', 'fangs', 'cave'] },
+  { id: 'wild_boar', name: 'Wild Boar', type: 'monster', role: 'beast', animations: ['idle', 'walk', 'attack'], tags: ['tusks', 'forest', 'charge'] },
+  { id: 'bandit_cutthroat', name: 'Bandit Cutthroat', type: 'monster', role: 'humanoid', animations: ['idle', 'walk', 'attack'], tags: ['dagger', 'mask', 'road'] },
+  { id: 'cultist_acolyte', name: 'Cultist Acolyte', type: 'monster', role: 'caster', animations: ['idle', 'walk', 'cast'], tags: ['robe', 'ritual', 'staff'] },
+  { id: 'restless_ghost', name: 'Restless Ghost', type: 'monster', role: 'undead', animations: ['idle', 'fly', 'attack'], tags: ['spirit', 'float', 'haunt'] },
+  { id: 'angry_treant', name: 'Angry Treant', type: 'monster', role: 'guardian', animations: ['idle', 'walk', 'attack'], tags: ['tree', 'branches', 'forest'] },
+  { id: 'minotaur_guard', name: 'Minotaur Guard', type: 'monster', role: 'elite', animations: ['idle', 'walk', 'attack'], tags: ['horns', 'axe', 'labyrinth'] },
+  { id: 'cave_troll', name: 'Cave Troll', type: 'monster', role: 'brute', animations: ['idle', 'walk', 'attack'], tags: ['club', 'large', 'cave'] },
+  { id: 'venom_serpent', name: 'Venom Serpent', type: 'monster', role: 'beast', animations: ['idle', 'walk', 'attack'], tags: ['snake', 'fangs', 'poison'] },
+  { id: 'iron_golem', name: 'Iron Golem', type: 'monster', role: 'construct', animations: ['idle', 'walk', 'attack'], tags: ['metal', 'construct', 'heavy'] },
   { id: 'village_merchant', name: 'Village Merchant', type: 'npc', role: 'shopkeeper', animations: ['idle', 'wave'], tags: ['pack', 'coin', 'friendly'] },
   { id: 'town_blacksmith', name: 'Town Blacksmith', type: 'npc', role: 'crafter', animations: ['idle', 'work'], tags: ['apron', 'hammer', 'anvil'] },
   { id: 'quest_elder', name: 'Quest Elder', type: 'npc', role: 'quest-giver', animations: ['idle', 'wave'], tags: ['staff', 'robe', 'village'] },
@@ -35,7 +45,7 @@ const mats = (() => {
     leather: m(0x7a4a26), wood: m(0x7b4d2a), bone: m(0xd7cfb2), black: m(0x08090d),
     cloth: m(0x394769), brown: m(0x8a5a35), mushroom: m(0xc54b58), white: m(0xf1ead6), stone: m(0x777f8e),
     stoneDark: m(0x3d4655), grass: m(0x2f7d52), grassDark: m(0x245b42), orange: m(0xff8a2a, { emissive: 0x7a2500, emissiveIntensity: .25 }),
-    yellow: m(0xffd65a, { emissive: 0x6f4b00, emissiveIntensity: .35 }), shadow: m(0x171827), wolf: m(0x4f5968), bat: m(0x303248)
+    yellow: m(0xffd65a, { emissive: 0x6f4b00, emissiveIntensity: .35 }), shadow: m(0x171827), wolf: m(0x4f5968), bat: m(0x303248), ghost: m(0x9fd6ff, { transparent: true, opacity: .74, emissive: 0x2c77aa, emissiveIntensity: .22 }), iron: m(0x8d98a8, { metalness: .5, roughness: .65 }), bark: m(0x6b4a2c), poison: m(0x7ed957, { emissive: 0x1c6b22, emissiveIntensity: .18 })
   };
 })();
 
@@ -62,6 +72,7 @@ function baseGroup(id, scale = 1, type = 'asset') {
   g.scale.setScalar(scale);
   g.userData.assetId = id;
   g.userData.assetType = type;
+  g.userData.baseScale = scale;
   g.userData.animate = (time, delta = 0, animation = 'idle') => animateAsset(g, animation, time, delta);
   return g;
 }
@@ -243,6 +254,122 @@ export function createEmberWhelp() {
   return g;
 }
 
+
+export function createGiantSpider() {
+  const g = baseGroup('giant_spider', .92, 'monster');
+  mesh(g, 'body', sphere(.36,8,5), mats.black, [0,.45,0], [0,0,0], [1.25,.72,1]);
+  mesh(g, 'abdomen', sphere(.42,8,5), mats.shadow, [-.38,.45,0], [0,0,0], [1.25,.82,1.05]);
+  mesh(g, 'head', sphere(.24,7,4), mats.black, [.36,.48,0]);
+  mesh(g, 'left_fang', cone(.035,.2,5), mats.bone, [.55,.4,-.08], [Math.PI,0,0]);
+  mesh(g, 'right_fang', cone(.035,.2,5), mats.bone, [.55,.4,.08], [Math.PI,0,0]);
+  for (let i=0;i<4;i++) {
+    const z = -.36 + i*.24;
+    mesh(g, `left_leg_${i}`, cyl(.025,.035,.72,5), mats.black, [-.08,.37,z], [Math.PI/2,0,.78]);
+    mesh(g, `right_leg_${i}`, cyl(.025,.035,.72,5), mats.black, [-.08,.37,z], [Math.PI/2,0,-.78]);
+  }
+  return g;
+}
+
+export function createWildBoar() {
+  const g = baseGroup('wild_boar', .95, 'monster');
+  mesh(g, 'body', sphere(.42,8,5), mats.brown, [0,.52,0], [0,0,0], [1.45,.82,.9]);
+  mesh(g, 'head', sphere(.28,7,4), mats.brown, [.58,.62,0]);
+  mesh(g, 'snout', box(.25,.16,.22), mats.leather, [.8,.58,0]);
+  mesh(g, 'left_tusk', cone(.035,.22,5), mats.bone, [.85,.55,-.1], [Math.PI/2,0,0]);
+  mesh(g, 'right_tusk', cone(.035,.22,5), mats.bone, [.85,.55,.1], [Math.PI/2,0,0]);
+  for (const [name,x,z] of [['front_left',.38,-.16],['front_right',.38,.16],['back_left',-.4,-.16],['back_right',-.4,.16]]) mesh(g, `${name}_leg`, cyl(.055,.075,.42,5), mats.brown, [x,.24,z]);
+  mesh(g, 'bristle_mohawk', box(.75,.08,.08), mats.black, [-.08,.9,0], [0,0,.05]);
+  return g;
+}
+
+export function createBanditCutthroat() {
+  const g = baseGroup('bandit_cutthroat', .94, 'monster');
+  humanoidCore(g, mats.leather, mats.skin, { bootMat: mats.black });
+  addHumanoidArms(g, mats.leather, .52);
+  mesh(g, 'black_mask', box(.34,.09,.035), mats.black, [0,1.78,.27]);
+  mesh(g, 'red_sash', box(.52,.12,.06), mats.red, [0,.98,.34], [0,0,.12]);
+  mesh(g, 'curved_dagger', box(.06,.42,.035), mats.steel, [.62,.96,.16], [0,0,-.45]);
+  return g;
+}
+
+export function createCultistAcolyte() {
+  const g = baseGroup('cultist_acolyte', .94, 'monster');
+  humanoidCore(g, mats.deepPurple, mats.skin, { bootMat: mats.black });
+  addHumanoidArms(g, mats.deepPurple, .25);
+  mesh(g, 'deep_hood', cone(.34,.46,7), mats.black, [0,2.0,0], [0,0,Math.PI]);
+  mesh(g, 'ritual_staff', cyl(.03,.04,1.28,6), mats.wood, [.58,.95,.1], [0,0,.12]);
+  mesh(g, 'skull_totem', sphere(.13,7,4), mats.bone, [.64,1.66,.1], [0,0,0], [1,.8,.9]);
+  mesh(g, 'purple_orb', sphere(.11,7,4), mats.purple, [-.5,1.36,.18]);
+  return g;
+}
+
+export function createRestlessGhost() {
+  const g = baseGroup('restless_ghost', .95, 'monster');
+  mesh(g, 'ghost_body', cone(.42,1.3,8), mats.ghost, [0,.78,0], [Math.PI,0,0]);
+  mesh(g, 'ghost_head', sphere(.28,8,5), mats.ghost, [0,1.42,0]);
+  mesh(g, 'left_eye', sphere(.045,6,3), mats.blue, [-.09,1.46,.24]);
+  mesh(g, 'right_eye', sphere(.045,6,3), mats.blue, [.09,1.46,.24]);
+  mesh(g, 'left_wisp_arm', cone(.06,.56,6), mats.ghost, [-.42,1.0,0], [0,0,-.85]);
+  mesh(g, 'right_wisp_arm', cone(.06,.56,6), mats.ghost, [.42,1.0,0], [0,0,.85]);
+  return g;
+}
+
+export function createAngryTreant() {
+  const g = baseGroup('angry_treant', 1.08, 'monster');
+  mesh(g, 'trunk_body', cyl(.32,.48,1.35,7), mats.bark, [0,.78,0]);
+  mesh(g, 'leaf_crown', sphere(.42,8,5), mats.grassDark, [0,1.6,0], [0,0,0], [1.15,.8,1]);
+  mesh(g, 'left_branch_arm', cyl(.055,.09,.86,6), mats.bark, [-.48,.98,0], [0,0,-.75]);
+  mesh(g, 'right_branch_arm', cyl(.055,.09,.86,6), mats.bark, [.48,.98,0], [0,0,.75]);
+  mesh(g, 'left_root', cone(.08,.45,6), mats.bark, [-.22,.1,.08], [0,0,Math.PI]);
+  mesh(g, 'right_root', cone(.08,.45,6), mats.bark, [.22,.1,.08], [0,0,Math.PI]);
+  mesh(g, 'angry_eye_left', box(.08,.035,.025), mats.yellow, [-.1,1.2,.31], [0,0,-.18]);
+  mesh(g, 'angry_eye_right', box(.08,.035,.025), mats.yellow, [.1,1.2,.31], [0,0,.18]);
+  return g;
+}
+
+export function createMinotaurGuard() {
+  const g = baseGroup('minotaur_guard', 1.18, 'monster');
+  humanoidCore(g, mats.brown, mats.brown, { bootMat: mats.leather });
+  addHumanoidArms(g, mats.brown, .2);
+  mesh(g, 'bull_snout', box(.28,.16,.22), mats.leather, [0,1.68,.25]);
+  mesh(g, 'left_horn', cone(.055,.42,6), mats.bone, [-.22,1.92,0], [0,0,Math.PI/2]);
+  mesh(g, 'right_horn', cone(.055,.42,6), mats.bone, [.22,1.92,0], [0,0,-Math.PI/2]);
+  mesh(g, 'labrys_handle', cyl(.04,.05,1.12,6), mats.wood, [.7,1.08,.1], [0,0,-.3]);
+  mesh(g, 'labrys_head', box(.48,.32,.09), mats.steel, [.86,1.48,.1], [0,0,-.3]);
+  return g;
+}
+
+export function createCaveTroll() {
+  const g = baseGroup('cave_troll', 1.24, 'monster');
+  humanoidCore(g, mats.stone, mats.green, { bootMat: mats.brown });
+  addHumanoidArms(g, mats.stone, .18);
+  mesh(g, 'big_nose', cone(.08,.22,6), mats.green, [0,1.74,.28], [Math.PI/2,0,0]);
+  mesh(g, 'club', cyl(.08,.16,1.05,7), mats.wood, [.72,1.1,.1], [0,0,-.42]);
+  mesh(g, 'shoulder_hide', box(.86,.18,.5), mats.leather, [0,1.44,0]);
+  return g;
+}
+
+export function createVenomSerpent() {
+  const g = baseGroup('venom_serpent', .98, 'monster');
+  for (let i=0;i<7;i++) mesh(g, `body_segment_${i}`, sphere(.2,7,4), i%2 ? mats.darkGreen : mats.poison, [-.6+i*.2,.25+Math.sin(i*.8)*.04,Math.sin(i*.7)*.12], [0,0,0], [1.18,.72,.9]);
+  mesh(g, 'head', sphere(.26,7,4), mats.poison, [.82,.34,.03], [0,0,0], [1.1,.75,.9]);
+  mesh(g, 'left_fang', cone(.028,.18,5), mats.bone, [.98,.28,-.07], [Math.PI,0,0]);
+  mesh(g, 'right_fang', cone(.028,.18,5), mats.bone, [.98,.28,.12], [Math.PI,0,0]);
+  return g;
+}
+
+export function createIronGolem() {
+  const g = baseGroup('iron_golem', 1.2, 'monster');
+  mesh(g, 'torso', box(.7,.82,.45), mats.iron, [0,1.0,0]);
+  mesh(g, 'head', box(.42,.34,.34), mats.iron, [0,1.62,0]);
+  mesh(g, 'left_arm', box(.22,.78,.24), mats.iron, [-.58,.98,0]);
+  mesh(g, 'right_arm', box(.22,.78,.24), mats.iron, [.58,.98,0]);
+  mesh(g, 'left_leg', box(.24,.62,.26), mats.iron, [-.22,.32,0]);
+  mesh(g, 'right_leg', box(.24,.62,.26), mats.iron, [.22,.32,0]);
+  mesh(g, 'core', sphere(.12,7,4), mats.orange, [0,1.05,.24]);
+  return g;
+}
+
 export function createVillageMerchant() {
   const g = baseGroup('village_merchant', .95, 'npc');
   humanoidCore(g, mats.cloth, mats.skin);
@@ -349,32 +476,61 @@ export function createDungeonRoom() {
 }
 
 export function createAssetById(id) {
-  switch (id) {
-    case 'knight_hero': return createKnightHero();
-    case 'mage_apprentice': return createMageApprentice();
-    case 'forest_ranger': return createForestRanger();
-    case 'sun_paladin': return createSunPaladin();
-    case 'shadow_rogue': return createShadowRogue();
-    case 'goblin_grunt': return createGoblinGrunt();
-    case 'orc_brute': return createOrcBrute();
-    case 'stone_slime': return createStoneSlime();
-    case 'bone_skeleton': return createBoneSkeleton();
-    case 'mushroom_imp': return createMushroomImp();
-    case 'dire_wolf': return createDireWolf();
-    case 'cave_bat': return createCaveBat();
-    case 'ember_whelp': return createEmberWhelp();
-    case 'village_merchant': return createVillageMerchant();
-    case 'town_blacksmith': return createTownBlacksmith();
-    case 'quest_elder': return createQuestElder();
-    case 'pine_tree': return createPineTree();
-    case 'rock_cluster': return createRockCluster();
-    case 'wooden_crate': return createWoodenCrate();
-    case 'campfire': return createCampfire();
-    case 'ruin_arch': return createRuinArch();
-    case 'forest_clearing': return createForestClearing();
-    case 'dungeon_room': return createDungeonRoom();
-    default: throw new Error(`Unknown asset id: ${id}`);
-  }
+  const factories = {
+    knight_hero: createKnightHero,
+    mage_apprentice: createMageApprentice,
+    forest_ranger: createForestRanger,
+    sun_paladin: createSunPaladin,
+    shadow_rogue: createShadowRogue,
+    goblin_grunt: createGoblinGrunt,
+    orc_brute: createOrcBrute,
+    stone_slime: createStoneSlime,
+    bone_skeleton: createBoneSkeleton,
+    mushroom_imp: createMushroomImp,
+    dire_wolf: createDireWolf,
+    cave_bat: createCaveBat,
+    ember_whelp: createEmberWhelp,
+    giant_spider: createGiantSpider,
+    wild_boar: createWildBoar,
+    bandit_cutthroat: createBanditCutthroat,
+    cultist_acolyte: createCultistAcolyte,
+    restless_ghost: createRestlessGhost,
+    angry_treant: createAngryTreant,
+    minotaur_guard: createMinotaurGuard,
+    cave_troll: createCaveTroll,
+    venom_serpent: createVenomSerpent,
+    iron_golem: createIronGolem,
+    village_merchant: createVillageMerchant,
+    town_blacksmith: createTownBlacksmith,
+    quest_elder: createQuestElder,
+    pine_tree: createPineTree,
+    rock_cluster: createRockCluster,
+    wooden_crate: createWoodenCrate,
+    campfire: createCampfire,
+    ruin_arch: createRuinArch,
+    forest_clearing: createForestClearing,
+    dungeon_room: createDungeonRoom
+  };
+  const factory = factories[id];
+  if (!factory) throw new Error(`Unknown asset id: ${id}`);
+  return finalizeAsset(factory());
+}
+
+function finalizeAsset(asset) {
+  asset.traverse(obj => {
+    obj.userData.basePosition = obj.position.clone();
+    obj.userData.baseRotation = obj.rotation.clone();
+    obj.userData.baseScale = obj.scale.clone();
+  });
+  return asset;
+}
+
+function resetPose(asset) {
+  asset.traverse(obj => {
+    if (obj.userData.basePosition) obj.position.copy(obj.userData.basePosition);
+    if (obj.userData.baseRotation) obj.rotation.copy(obj.userData.baseRotation);
+    if (obj.userData.baseScale) obj.scale.copy(obj.userData.baseScale);
+  });
 }
 
 export function createAssetPack(ids = ASSET_CATALOG.map(item => item.id), spacing = 2.2) {
@@ -395,6 +551,7 @@ export function getAssetMeta(id) {
 
 export function animateAsset(asset, animation = 'idle', time = 0, delta = 0) {
   const id = asset.userData.assetId || asset.name;
+  resetPose(asset);
   const bob = Math.sin(time * 2.2) * .035;
   const walk = Math.sin(time * 8.2);
   const attack = Math.sin(time * 10);
@@ -410,8 +567,9 @@ export function animateAsset(asset, animation = 'idle', time = 0, delta = 0) {
     animateNamed(asset, 'right_arm', 'rotation.x', walk * .35);
   } else if (animation === 'jump' || animation === 'hop') {
     asset.position.y = hop * .35;
-    asset.scale.y = 1 - (1 - hop) * .08;
-    asset.scale.x = asset.scale.z = 1 + (1 - hop) * .04;
+    const base = asset.userData.baseScale?.x || 1;
+    asset.scale.y = base * (1 - (1 - hop) * .08);
+    asset.scale.x = asset.scale.z = base * (1 + (1 - hop) * .04);
   } else if (animation === 'attack') {
     animateNamed(asset, 'right_arm', 'rotation.x', -.7 + attack * .25);
     animateNamed(asset, 'sword', 'rotation.z', -.25 + attack * .45);

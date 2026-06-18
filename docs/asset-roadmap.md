@@ -25,7 +25,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 
 - [x] Add generic idle, walk, jump/hop, attack, cast, fly, wave, work, flame animations.
 - [ ] Split animation helpers into per-family controllers.
-- [ ] Add preview controls to switch animations in the catalog.
+- [x] Add preview controls to switch animations in the catalog.
 - [ ] Add named attachment points for weapons, VFX, and hats.
 - [ ] Add normalized bounds/grounding metadata for gameplay placement.
 
@@ -35,7 +35,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 - [x] Monsters: goblin, orc, slime, skeleton, mushroom imp, dire wolf, cave bat, ember whelp.
 - [x] NPCs: merchant, blacksmith, quest elder.
 - [x] Environment: pine tree, rocks, crate, campfire, ruin arch, forest clearing, dungeon room.
-- [ ] Add 10 more monsters: spider, boar, bandit, cultist, ghost, treant, minotaur, troll, serpent, golem.
+- [x] Add 10 more monsters: spider, boar, bandit, cultist, ghost, treant, minotaur, troll, serpent, golem.
 - [ ] Add 8 more environment pieces: bridge, fence, signpost, well, house, tower, cave mouth, portal.
 - [ ] Add hero variants: healer, necromancer, barbarian, druid.
 
@@ -47,4 +47,4 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 
 ## Recommended next slice
 
-Add catalog animation controls, then add the next monster batch. That makes new assets immediately inspectable and gives us a repeatable workflow.
+Add per-asset detail pages with copy-paste import snippets, then add the next environment batch. That will make the pack easier for other projects to consume without reading the full source file.

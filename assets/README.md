@@ -42,7 +42,7 @@ Reusable procedural low-poly assets for browser games using Three.js.
 ## Current asset families
 
 - Heroes: knight, mage, ranger, paladin, rogue.
-- Monsters: goblin, orc, slime, skeleton, mushroom imp, dire wolf, cave bat, ember whelp.
+- Monsters: goblin, orc, slime, skeleton, mushroom imp, dire wolf, cave bat, ember whelp, spider, boar, bandit, cultist, ghost, treant, minotaur, troll, serpent, golem.
 - NPCs: merchant, blacksmith, quest elder.
 - Environment props/kits: pine tree, rocks, crate, campfire, ruin arch, forest clearing, dungeon room.
 
