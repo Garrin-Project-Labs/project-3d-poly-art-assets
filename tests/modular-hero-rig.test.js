@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createAssetById } from '../assets/library/low_poly_asset_library.js';
 
 const HERO_IDS = ['knight_hero', 'mage_apprentice', 'forest_ranger', 'sun_paladin', 'shadow_rogue'];
-const REQUIRED_BASE_PARTS = ['left_foot', 'right_foot', 'left_leg', 'right_leg', 'hip_belt', 'torso', 'chest_inset', 'left_shoulder', 'right_shoulder', 'left_arm', 'right_arm', 'left_hand', 'right_hand', 'neck', 'head'];
+const REQUIRED_BASE_PARTS = ['left_leg', 'right_leg', 'hip_belt', 'torso', 'chest_inset', 'left_shoulder', 'right_shoulder', 'left_arm', 'right_arm', 'left_hand', 'right_hand', 'neck', 'head'];
 
 test('core heroes share the standardized modular hero rig', () => {
   for (const id of HERO_IDS) {

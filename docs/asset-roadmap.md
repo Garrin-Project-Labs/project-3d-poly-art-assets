@@ -57,6 +57,6 @@ Add per-asset detail pages with copy-paste import snippets, then add the next en
 - [x] Add attachment and quality metadata.
 - [x] Refactor core heroes onto a standardized modular hero rig.
 - [x] Attach hero weapons/tools to reusable hand anchors.
-- [x] Replace blocky hero boots with tapered low-poly feet.
+- [x] Remove separate blocky hero feet/boots; grounded legs now end cleanly at the floor.
 - [ ] Tighten polygons on core monsters.
 - [ ] Add readiness badges to catalog cards.
