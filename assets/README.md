@@ -39,6 +39,10 @@ Reusable procedural low-poly assets for browser games using Three.js.
 - `getAssetMeta(id)` — returns metadata for one asset.
 - `animateAsset(asset, animation, time, delta)` — applies simple procedural animation.
 
+## Downloadable snippets
+
+Each catalog asset has a small import wrapper in `assets/snippets/<asset-id>.js`. The public catalog links these directly so people can download a single starter snippet without reading the whole library.
+
 ## Current asset families
 
 - Heroes: knight, mage, ranger, paladin, rogue.

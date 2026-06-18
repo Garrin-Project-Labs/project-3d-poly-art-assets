@@ -18,7 +18,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 - [x] Export `animateAsset(asset, animation, time, delta)` helper.
 - [x] Add `assets/README.md` quick-start docs.
 - [ ] Add per-asset detail pages with copy-paste import snippets.
-- [ ] Add downloadable source snippets per asset.
+- [x] Add downloadable source snippets per asset.
 - [ ] Add GLB export/download pipeline once designs stabilize.
 
 ### 2. Animation readiness
