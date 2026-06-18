@@ -1,0 +1,61 @@
+project:
+  id: "poly-art-assets"
+  name: "3D Poly Art Assets"
+  repo: "Garrin-Project-Labs/project-3d-poly-art-assets"
+  sourceOfTruth: discord
+
+owner:
+  discordUserId: "222914128463921152"
+  label: "222914128463921152"
+
+discord:
+  guildId: "1515020347425030245"
+  channelId: "1516987814745473024"
+  visibility: "public"
+  projectsCategoryId: "1516195966330343444"
+  projectCreationChannelId: "1516196374620799127"
+  roles:
+    viewer:
+      roleId: "1516987806327636148"
+      name: "poly-art-assets-viewer"
+    contributor:
+      roleId: "1516987808433307708"
+      name: "poly-art-assets-contributor"
+    maintainer:
+      roleId: "1516987811033780225"
+      name: "poly-art-assets-maintainer"
+
+authorization:
+  allowViewerQuestions: true
+  allowContributorsToClaimTasks: true
+  requireMaintainerForPlanApproval: true
+  requireMaintainerForDocsAndMemory: true
+  requireOwnerForInvites: false
+  requireOwnerForRepoCreation: true
+  requireOwnerForArchiveDelete: true
+  requireGlobalOwnerForGatewayConfig: true
+
+publishing:
+  githubPages: true
+  githubPagesStatus: "pending"
+  githubPagesUrl: "https://garrin-project-labs.github.io/project-3d-poly-art-assets/"
+  githubPagesSource: "main:/docs"
+  publicDemos: true
+
+workflow:
+  taskThreads: automatic
+  taskCommandStyle: natural_language
+  friendlyTaskName: quest
+  requireMention: true
+  jamMode: temporary_ambient
+  branchNaming: "task/<id>-<slug>"
+  requirePlanApproval: true
+  requireMaintainerForDocsAndMemory: true
+  allowBotMergeWithMaintainerApproval: true
+  githubIssues: false
+
+audit:
+  level: medium
+  path: ".project/audit/events.jsonl"
+  includePrLinks: true
+  includeDiscordThreadLinks: true
