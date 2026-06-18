@@ -614,7 +614,29 @@ function finalizeAsset(asset) {
     obj.userData.baseRotation = obj.rotation.clone();
     obj.userData.baseScale = obj.scale.clone();
   });
+  asset.userData.gameplay = measureAsset(asset);
   return asset;
+}
+
+function measureAsset(asset) {
+  asset.updateMatrixWorld(true);
+  const bounds = new THREE.Box3().setFromObject(asset);
+  const size = new THREE.Vector3();
+  const center = new THREE.Vector3();
+  bounds.getSize(size);
+  bounds.getCenter(center);
+  return {
+    bounds: { min: plainVector(bounds.min), max: plainVector(bounds.max) },
+    size: plainVector(size),
+    center: plainVector(center),
+    radius: Math.max(size.x, size.z) / 2,
+    height: size.y,
+    groundOffset: -bounds.min.y
+  };
+}
+
+function plainVector(v) {
+  return { x: v.x, y: v.y, z: v.z };
 }
 
 function resetPose(asset) {
@@ -639,6 +661,11 @@ export function createAssetPack(ids = ASSET_CATALOG.map(item => item.id), spacin
 
 export function getAssetMeta(id) {
   return ASSET_CATALOG.find(item => item.id === id);
+}
+
+export function getAssetGameplayMeta(assetOrId) {
+  const asset = typeof assetOrId === 'string' ? createAssetById(assetOrId) : assetOrId;
+  return asset?.userData?.gameplay;
 }
 
 export function animateAsset(asset, animation = 'idle', time = 0, delta = 0) {
