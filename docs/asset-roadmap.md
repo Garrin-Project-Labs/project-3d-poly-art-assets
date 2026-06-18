@@ -56,5 +56,6 @@ Add per-asset detail pages with copy-paste import snippets, then add the next en
 - [x] Define an asset readiness contract.
 - [x] Add attachment and quality metadata.
 - [x] Refactor core heroes onto a standardized modular hero rig.
+- [x] Attach hero weapons/tools to reusable hand anchors.
 - [ ] Tighten polygons on core monsters.
 - [ ] Add readiness badges to catalog cards.

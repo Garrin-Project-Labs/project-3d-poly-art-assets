@@ -31,6 +31,8 @@ Humanoid heroes, monsters, and NPCs should also expose, when reasonable:
 - `chest`
 - `leftHand`
 - `rightHand`
+- `leftHand` / `rightHand` — hand anchors for held items
+- `left_weapon_anchor` / `right_weapon_anchor` — reusable child anchors where weapons, shields, tools, or focus props should be attached
 - `weapon`
 - `vfx`
 
@@ -56,6 +58,7 @@ Current target: move core heroes/monsters from `prototype` toward `game-ready`. 
 - [x] Add tests for readiness metadata.
 - [ ] Add readiness badges to catalog cards.
 - [x] Tighten polygons on core heroes with `standard_hero_v1`: knight, mage, ranger, paladin, rogue.
+- [x] Attach hero fighting assets to reusable hand weapon anchors.
 - [ ] Tighten polygons on core monsters: goblin, orc, skeleton, slime, wolf.
 - [ ] Promote polished assets to `game-ready` tier.
 - [ ] Add GLB/export path after the visual language stabilizes.

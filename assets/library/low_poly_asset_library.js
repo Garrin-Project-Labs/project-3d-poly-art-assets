@@ -74,6 +74,16 @@ function mesh(parent, name, geo, mat, pos = [0,0,0], rot = [0,0,0], scale = [1,1
   return m;
 }
 
+function anchor(parent, name, pos = [0,0,0], rot = [0,0,0]) {
+  const g = new THREE.Group();
+  g.name = name;
+  g.position.set(...pos);
+  g.rotation.set(...rot);
+  g.userData.isAnchor = true;
+  parent.add(g);
+  return g;
+}
+
 function baseGroup(id, scale = 1, type = 'asset') {
   const g = new THREE.Group();
   g.name = id;
@@ -107,10 +117,14 @@ function createStandardHeroRig(id, kit = {}) {
   mesh(g, 'chest_inset', box(.42,.46,.045), cloth, [0,1.28,.42]);
   mesh(g, 'left_shoulder', cyl(.18,.24,.25,6), armor, [-.48,1.55,0], [0,0,Math.PI/2]);
   mesh(g, 'right_shoulder', cyl(.18,.24,.25,6), armor, [.48,1.55,0], [0,0,Math.PI/2]);
-  mesh(g, 'left_arm', cyl(.075,.105,.62,6), kit.armMat || armor, [-.62,1.18,.02], [0,0,-.30]);
-  mesh(g, 'right_arm', cyl(.075,.105,.62,6), kit.armMat || armor, [.62,1.18,.02], [0,0,.30]);
-  mesh(g, 'left_hand', sphere(.075,6,4), headMat, [-.72,.86,.06]);
-  mesh(g, 'right_hand', sphere(.075,6,4), headMat, [.72,.86,.06]);
+  const leftArm = mesh(g, 'left_arm', cyl(.075,.105,.62,6), kit.armMat || armor, [-.62,1.18,.02], [0,0,-.30]);
+  const rightArm = mesh(g, 'right_arm', cyl(.075,.105,.62,6), kit.armMat || armor, [.62,1.18,.02], [0,0,.30]);
+  const leftHand = anchor(leftArm, 'left_hand_anchor', [0,-.36,.04]);
+  const rightHand = anchor(rightArm, 'right_hand_anchor', [0,-.36,.04]);
+  mesh(leftHand, 'left_hand', sphere(.075,6,4), headMat);
+  mesh(rightHand, 'right_hand', sphere(.075,6,4), headMat);
+  anchor(leftHand, 'left_weapon_anchor');
+  anchor(rightHand, 'right_weapon_anchor');
   mesh(g, 'neck', cyl(.09,.12,.14,6), headMat, [0,1.70,0]);
   mesh(g, 'head', sphere(.27,8,5), headMat, [0,1.92,0], [0,0,0], [1,.95,.9]);
   mesh(g, 'nose_guard', box(.055,.14,.035), kit.faceTrimMat || trim, [0,1.88,.25]);
@@ -154,15 +168,65 @@ function addHeroHelmet(g, mat, trim = mats.gold) {
   mesh(g, 'helmet_crest', box(.08,.24,.18), trim, [0,2.42,-.02]);
 }
 
+
+function heroWeaponAnchor(g, side = 'right') {
+  const found = g.getObjectByName(`${side}_weapon_anchor`);
+  if (!found) throw new Error(`Missing ${side}_weapon_anchor on ${g.name}`);
+  return found;
+}
+
+function addHeroSword(g, side = 'right', name = 'sword') {
+  const h = heroWeaponAnchor(g, side);
+  mesh(h, name, box(.08,.90,.04), mats.steel, [0,.34,.05], [0,0,-.08]);
+  mesh(h, `${name}_tip`, cone(.055,.16,4), mats.steel, [0,.86,.05], [0,0,Math.PI/4]);
+  mesh(h, `${name}_guard`, box(.28,.055,.05), mats.gold, [0,.02,.05]);
+  return h;
+}
+
+function addHeroShield(g, side = 'left') {
+  const h = heroWeaponAnchor(g, side);
+  mesh(h, 'shield', cyl(.34,.31,.08,8), mats.blue, [0,.18,.10], [Math.PI/2,0,0]);
+  mesh(h, 'shield_cross', box(.09,.52,.045), mats.gold, [0,.18,.16]);
+  return h;
+}
+
+function addHeroStaff(g, side = 'right') {
+  const h = heroWeaponAnchor(g, side);
+  mesh(h, 'staff', cyl(.035,.045,1.72,6), mats.wood, [0,.56,.05], [0,0,.04]);
+  mesh(h, 'staff_crystal', sphere(.16,7,4), mats.teal, [.06,1.42,.05]);
+  return h;
+}
+
+function addHeroBow(g, side = 'left') {
+  const h = heroWeaponAnchor(g, side);
+  mesh(h, 'bow_curve_top', cyl(.025,.035,.90,6), mats.wood, [0,.48,.08], [0,0,.34]);
+  mesh(h, 'bow_curve_bottom', cyl(.025,.035,.90,6), mats.wood, [0,-.14,.08], [0,0,-.34]);
+  mesh(h, 'bow_string', box(.022,1.34,.022), mats.white, [-.12,.18,.09]);
+  return h;
+}
+
+function addHeroHammer(g, side = 'right') {
+  const h = heroWeaponAnchor(g, side);
+  mesh(h, 'warhammer_handle', cyl(.04,.05,.92,6), mats.wood, [0,.36,.06], [0,0,-.12]);
+  mesh(h, 'warhammer_head', box(.42,.22,.20), mats.steel, [.08,.84,.06], [0,0,-.12]);
+  return h;
+}
+
+function addHeroDagger(g, side = 'right') {
+  const h = heroWeaponAnchor(g, side);
+  const xTilt = side === 'left' ? .22 : -.22;
+  mesh(h, `${side}_dagger`, box(.055,.46,.035), mats.steel, [0,.20,.06], [0,0,xTilt]);
+  mesh(h, `${side}_dagger_guard`, box(.18,.035,.04), mats.darkSteel, [0,-.03,.06]);
+  return h;
+}
+
 export function createKnightHero() {
   const g = createStandardHeroRig('knight_hero', { kitName: 'knight', scale: .96, armorMat: mats.steel, clothMat: mats.blue, bootMat: mats.darkSteel, headMat: mats.steel, trimMat: mats.gold });
   addHeroHelmet(g, mats.steel, mats.gold);
   addHeroCape(g, mats.red, [.82,1.05,.08], 1.08);
   mesh(g, 'tabard_point', cone(.22,.32,3), mats.blue, [0,.78,.43], [Math.PI/2,0,Math.PI]);
-  mesh(g, 'sword', box(.08,1.02,.04), mats.steel, [.82,1.18,.14], [0,0,-.18]);
-  mesh(g, 'sword_tip', cone(.055,.16,4), mats.steel, [.91,1.68,.14], [0,0,Math.PI/4]);
-  mesh(g, 'shield', cyl(.34,.31,.08,8), mats.blue, [-.78,1.14,.18], [Math.PI/2,0,0]);
-  mesh(g, 'shield_cross', box(.09,.52,.045), mats.gold, [-.78,1.14,.25]);
+  addHeroSword(g, 'right');
+  addHeroShield(g, 'left');
   return g;
 }
 
@@ -171,8 +235,7 @@ export function createMageApprentice() {
   addHeroHat(g, mats.purple, mats.gold);
   addHeroCape(g, mats.deepPurple, [.78,1.08,.07], 1.08);
   mesh(g, 'robe_front', box(.50,.70,.05), mats.deepPurple, [0,.98,.43]);
-  mesh(g, 'staff', cyl(.035,.045,1.72,6), mats.wood, [.82,1.08,.1], [0,0,.08]);
-  mesh(g, 'staff_crystal', sphere(.16,7,4), mats.teal, [.90,1.92,.1]);
+  addHeroStaff(g, 'right');
   mesh(g, 'floating_spell_orb', sphere(.12,7,4), mats.gold, [-.70,1.58,.22]);
   return g;
 }
@@ -183,9 +246,7 @@ export function createForestRanger() {
   addHeroCape(g, mats.green, [.78,1.00,.07], 1.08);
   mesh(g, 'quiver', cyl(.13,.16,.62,6), mats.leather, [-.42,1.36,-.35], [.42,0,.18]);
   for (let i=0;i<4;i++) mesh(g, `arrow_${i}`, cyl(.012,.012,.54,5), mats.wood, [-.49+i*.05,1.62,-.45], [.42,0,.18]);
-  mesh(g, 'bow_curve_top', cyl(.025,.035,.90,6), mats.wood, [.86,1.48,.15], [0,0,.34]);
-  mesh(g, 'bow_curve_bottom', cyl(.025,.035,.90,6), mats.wood, [.86,.86,.15], [0,0,-.34]);
-  mesh(g, 'bow_string', box(.022,1.34,.022), mats.white, [.74,1.16,.16]);
+  addHeroBow(g, 'left');
   return g;
 }
 
@@ -194,8 +255,7 @@ export function createSunPaladin() {
   addHeroHelmet(g, mats.gold, mats.white);
   addHeroCape(g, mats.white, [.82,1.02,.08], 1.08);
   mesh(g, 'sun_halo', cyl(.34,.34,.035,12), mats.gold, [0,2.38,-.06], [Math.PI/2,0,0]);
-  mesh(g, 'warhammer_handle', cyl(.04,.05,.96,6), mats.wood, [.80,1.07,.13], [0,0,-.42]);
-  mesh(g, 'warhammer_head', box(.40,.22,.20), mats.steel, [.99,1.42,.13], [0,0,-.42]);
+  addHeroHammer(g, 'right');
   return g;
 }
 
@@ -204,8 +264,8 @@ export function createShadowRogue() {
   addHeroHood(g, mats.black);
   addHeroCape(g, mats.black, [.64,.72,.07], 1.05);
   mesh(g, 'mask', box(.30,.075,.03), mats.black, [0,1.95,.265]);
-  mesh(g, 'left_dagger', box(.055,.52,.035), mats.steel, [-.78,.95,.18], [0,0,.35]);
-  mesh(g, 'right_dagger', box(.055,.52,.035), mats.steel, [.78,.95,.18], [0,0,-.35]);
+  addHeroDagger(g, 'left');
+  addHeroDagger(g, 'right');
   return g;
 }
 
@@ -701,9 +761,9 @@ function createAttachmentPoints(asset, gameplay) {
   const headFallback = { x: gameplay.center.x, y: gameplay.bounds.min.y + gameplay.height * 0.82, z: gameplay.center.z };
   addPartPoint('head', ['head', 'skull', 'helmet_dome'], headFallback);
   addPartPoint('chest', ['torso', 'body', 'chest_plate'], chestFallback);
-  addPartPoint('leftHand', ['left_arm', 'left_gauntlet', 'left_wisp_arm'], { x: gameplay.bounds.min.x, y: chestFallback.y, z: gameplay.center.z });
-  addPartPoint('rightHand', ['right_arm', 'right_gauntlet', 'right_wisp_arm'], { x: gameplay.bounds.max.x, y: chestFallback.y, z: gameplay.center.z });
-  addPartPoint('weapon', ['sword', 'axe_handle', 'club_handle', 'staff', 'bow_string', 'hammer_handle'], attachments.rightHand);
+  addPartPoint('leftHand', ['left_hand_anchor', 'left_hand', 'left_arm', 'left_gauntlet', 'left_wisp_arm'], { x: gameplay.bounds.min.x, y: chestFallback.y, z: gameplay.center.z });
+  addPartPoint('rightHand', ['right_hand_anchor', 'right_hand', 'right_arm', 'right_gauntlet', 'right_wisp_arm'], { x: gameplay.bounds.max.x, y: chestFallback.y, z: gameplay.center.z });
+  addPartPoint('weapon', ['right_weapon_anchor', 'left_weapon_anchor', 'sword', 'axe_handle', 'club_handle', 'staff', 'bow_string', 'warhammer_handle', 'hammer_handle'], attachments.rightHand);
   addPartPoint('vfx', ['staff_crystal', 'floating_spell_orb', 'portal_core', 'flame_outer', 'core'], attachments.front);
   if (asset.userData.assetType === 'environment') {
     attachments.entry = { x: gameplay.center.x, y: 0, z: gameplay.bounds.max.z + 0.2 };
@@ -807,14 +867,19 @@ export function animateAsset(asset, animation = 'idle', time = 0, delta = 0) {
     const snap = Math.max(0, Math.sin(time * 10));
     const hasWeaponOrArm = Boolean(
       asset.getObjectByName('right_arm') ||
+      asset.getObjectByName('right_weapon_anchor') ||
+      asset.getObjectByName('left_weapon_anchor') ||
       asset.getObjectByName('sword') ||
       asset.getObjectByName('axe_handle') ||
       asset.getObjectByName('club_handle')
     );
     animateNamed(asset, 'right_arm', 'rotation.x', -.7 + attack * .25);
-    animateNamed(asset, 'sword', 'rotation.z', -.25 + attack * .45);
+    animateNamed(asset, 'right_weapon_anchor', 'rotation.z', -.25 + attack * .45);
+    animateNamed(asset, 'left_weapon_anchor', 'rotation.z', .12 - attack * .18);
+    animateNamed(asset, 'sword', 'rotation.z', -.08 + attack * .18);
     animateNamed(asset, 'axe_handle', 'rotation.z', -.42 + attack * .35);
     animateNamed(asset, 'club_handle', 'rotation.z', -.55 + attack * .4);
+    animateNamed(asset, 'warhammer_handle', 'rotation.z', -.12 + attack * .25);
     if (!hasWeaponOrArm) {
       asset.position.z += snap * .18;
       asset.rotation.x = -snap * .12;
