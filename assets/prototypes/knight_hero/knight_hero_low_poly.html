@@ -25,6 +25,7 @@
   </div>
   <div id="buttons">
     <select id="spawnSelect" aria-label="Spawn catalog asset"></select>
+    <select id="spawnAnimationSelect" aria-label="Spawn animation"></select>
     <button id="spawnAsset" type="button" tabindex="-1">Spawn asset</button>
     <button id="clearSpawns" type="button" tabindex="-1">Clear spawns</button>
     <button class="secondary" id="toggleCamera" type="button" tabindex="-1">Follow camera: off</button>
@@ -263,6 +264,7 @@
     const resetSceneButton = document.getElementById('resetScene');
     const spawnSelect = document.getElementById('spawnSelect');
     const spawnAssetButton = document.getElementById('spawnAsset');
+    const spawnAnimationSelect = document.getElementById('spawnAnimationSelect');
     const clearSpawnsButton = document.getElementById('clearSpawns');
 
     for (const item of ASSET_CATALOG) {
@@ -272,6 +274,13 @@
       spawnSelect.appendChild(option);
     }
     spawnSelect.value = 'goblin_grunt';
+    const demoAnimations = ['auto', 'idle', 'walk', 'jump', 'hop', 'attack', 'cast', 'fly', 'wave', 'work', 'flame'];
+    for (const animation of demoAnimations) {
+      const option = document.createElement('option');
+      option.value = animation;
+      option.textContent = `Animation: ${animation}`;
+      spawnAnimationSelect.appendChild(option);
+    }
 
     for (const button of [toggleCameraButton, resetSceneButton, spawnAssetButton, clearSpawnsButton]) {
       button.addEventListener('keydown', event => {
@@ -287,17 +296,31 @@
       toggleCameraButton.textContent = `Follow camera: ${followCamera ? 'on' : 'off'}`;
       toggleCameraButton.blur();
     };
+    spawnAnimationSelect.onchange = () => {
+      for (const asset of spawnedAssets) asset.userData.previewAnimation = resolvePreviewAnimation(asset.userData.assetId);
+    };
+
     spawnAssetButton.onclick = () => {
       const asset = createAssetById(spawnSelect.value);
       const angle = spawnedAssets.length * 1.35;
       const radius = 2.8 + (spawnedAssets.length % 4) * .8;
       asset.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
       asset.rotation.y = -angle + Math.PI / 2;
-      asset.userData.previewAnimation = asset.userData.assetType === 'environment' ? 'idle' : 'walk';
+      asset.userData.previewAnimation = resolvePreviewAnimation(asset.userData.assetId);
       spawnedAssets.push(asset);
       scene.add(asset);
       spawnAssetButton.blur();
     };
+    function resolvePreviewAnimation(assetId) {
+      if (spawnAnimationSelect.value !== 'auto') return spawnAnimationSelect.value;
+      const item = ASSET_CATALOG.find(entry => entry.id === assetId);
+      return item?.animations.includes('walk') ? 'walk'
+        : item?.animations.includes('fly') ? 'fly'
+        : item?.animations.includes('flame') ? 'flame'
+        : item?.animations.includes('hop') ? 'hop'
+        : 'idle';
+    }
+
     clearSpawnsButton.onclick = () => {
       for (const asset of spawnedAssets.splice(0)) scene.remove(asset);
       clearSpawnsButton.blur();
