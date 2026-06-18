@@ -11,7 +11,8 @@ sessions/
 *.sqlite3
 *.db
 
-# Caches
+# Caches / dependencies
+node_modules/
 __pycache__/
 *.py[cod]
 .pytest_cache/

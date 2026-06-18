@@ -27,6 +27,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 - [ ] Split animation helpers into per-family controllers.
 - [x] Add preview controls to switch animations in the catalog.
 - [ ] Add named attachment points for weapons, VFX, and hats.
+- [x] Add automated tests for buildable assets and finite animation transforms.
 - [ ] Add normalized bounds/grounding metadata for gameplay placement.
 
 ### 3. Asset volume

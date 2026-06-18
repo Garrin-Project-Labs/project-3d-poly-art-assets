@@ -46,6 +46,17 @@ Reusable procedural low-poly assets for browser games using Three.js.
 - NPCs: merchant, blacksmith, quest elder.
 - Environment props/kits: pine tree, rocks, crate, campfire, ruin arch, forest clearing, dungeon room.
 
+## Quality gate
+
+This project now has Node tests that validate the public asset API:
+
+```bash
+npm install
+npm test
+```
+
+The GitHub Pages workflow runs the tests before publishing the catalog, so broken factories or invalid animation transforms should block deployment.
+
 ## Notes
 
 These are deliberately lightweight procedural meshes, not exported GLB files yet. That makes them easy to import directly in Three.js prototypes and easy to modify in code. A later milestone should add GLB export/downloads once the visual language settles.
