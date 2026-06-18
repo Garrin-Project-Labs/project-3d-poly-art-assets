@@ -10,8 +10,9 @@
     h1 { margin: 0 0 6px; font-size: 18px; }
     p { margin: 0; opacity: .82; line-height: 1.35; font-size: 13px; }
     kbd { display: inline-block; min-width: 1.7em; padding: 2px 6px; margin: 0 1px; border-radius: 6px; background: rgba(255,255,255,.12); color: #fff; font-weight: 800; text-align: center; box-shadow: inset 0 -1px 0 rgba(255,255,255,.16); }
-    #buttons { position: fixed; right: 14px; bottom: 14px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-    button { border: 0; border-radius: 999px; padding: 10px 14px; color: #101827; background: #f8cf5a; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(0,0,0,.25); }
+    #buttons { position: fixed; right: 14px; bottom: 14px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; max-width: min(620px, calc(100vw - 28px)); }
+    button, select { border: 0; border-radius: 999px; padding: 10px 14px; color: #101827; background: #f8cf5a; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(0,0,0,.25); }
+    select { background: #e5edf7; max-width: 230px; }
     button.secondary { background: #9cc9ff; }
     #hint { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); color: rgba(229,237,247,.72); font-size: 12px; text-align: center; pointer-events: none; }
     canvas { display: block; }
@@ -23,6 +24,9 @@
     <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk. Tap <kbd>Space</kbd> to jump, hold <kbd>Shift</kbd> to sprint. Drag to orbit the camera. The knight now has procedural walk, jump, cape sway, and a small 3D courtyard to explore.</p>
   </div>
   <div id="buttons">
+    <select id="spawnSelect" aria-label="Spawn catalog asset"></select>
+    <button id="spawnAsset" type="button" tabindex="-1">Spawn asset</button>
+    <button id="clearSpawns" type="button" tabindex="-1">Clear spawns</button>
     <button class="secondary" id="toggleCamera" type="button" tabindex="-1">Follow camera: off</button>
     <button id="resetScene" type="button" tabindex="-1">Reset hero</button>
   </div>
@@ -40,6 +44,7 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { ASSET_CATALOG, animateAsset, createAssetById } from '../../library/low_poly_asset_library.js';
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x101827);
@@ -184,6 +189,7 @@
 
     const { rig: hero, parts } = createKnight();
     scene.add(hero);
+    const spawnedAssets = [];
 
     function addEnvironment() {
       const ground = new THREE.Mesh(new THREE.CircleGeometry(18, 10), mat.grass);
@@ -255,7 +261,19 @@
     let followCamera = false;
     const toggleCameraButton = document.getElementById('toggleCamera');
     const resetSceneButton = document.getElementById('resetScene');
-    for (const button of [toggleCameraButton, resetSceneButton]) {
+    const spawnSelect = document.getElementById('spawnSelect');
+    const spawnAssetButton = document.getElementById('spawnAsset');
+    const clearSpawnsButton = document.getElementById('clearSpawns');
+
+    for (const item of ASSET_CATALOG) {
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = `${item.name} (${item.type})`;
+      spawnSelect.appendChild(option);
+    }
+    spawnSelect.value = 'goblin_grunt';
+
+    for (const button of [toggleCameraButton, resetSceneButton, spawnAssetButton, clearSpawnsButton]) {
       button.addEventListener('keydown', event => {
         if (event.key === ' ' || event.key === 'Enter') {
           event.preventDefault();
@@ -269,6 +287,22 @@
       toggleCameraButton.textContent = `Follow camera: ${followCamera ? 'on' : 'off'}`;
       toggleCameraButton.blur();
     };
+    spawnAssetButton.onclick = () => {
+      const asset = createAssetById(spawnSelect.value);
+      const angle = spawnedAssets.length * 1.35;
+      const radius = 2.8 + (spawnedAssets.length % 4) * .8;
+      asset.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+      asset.rotation.y = -angle + Math.PI / 2;
+      asset.userData.previewAnimation = asset.userData.assetType === 'environment' ? 'idle' : 'walk';
+      spawnedAssets.push(asset);
+      scene.add(asset);
+      spawnAssetButton.blur();
+    };
+    clearSpawnsButton.onclick = () => {
+      for (const asset of spawnedAssets.splice(0)) scene.remove(asset);
+      clearSpawnsButton.blur();
+    };
+
     resetSceneButton.onclick = () => {
       hero.position.set(0,0,0);
       hero.rotation.set(0,0,0);
@@ -279,6 +313,7 @@
       camera.position.set(5.2, 3.5, 7.8);
       controls.target.set(0,1.55,0);
       controls.update();
+      for (const asset of spawnedAssets.splice(0)) scene.remove(asset);
       resetSceneButton.blur();
     };
 
@@ -402,8 +437,10 @@
     const clock = new THREE.Clock();
     function animate() {
       const dt = Math.min(clock.getDelta(), .033);
+      const elapsed = clock.elapsedTime;
       const speed = updateMovement(dt);
       updateKnightAnimation(dt, speed);
+      for (const asset of spawnedAssets) animateAsset(asset, asset.userData.previewAnimation || 'idle', elapsed, dt);
       updateCamera(dt);
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
