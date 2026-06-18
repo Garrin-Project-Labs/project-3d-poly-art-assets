@@ -33,7 +33,15 @@ export const ASSET_CATALOG = [
   { id: 'campfire', name: 'Campfire', type: 'environment', role: 'vfx-prop', animations: ['idle', 'flame'], tags: ['fire', 'light', 'camp'] },
   { id: 'ruin_arch', name: 'Ruin Arch', type: 'environment', role: 'structure', animations: ['idle'], tags: ['stone', 'ruins', 'structure'] },
   { id: 'forest_clearing', name: 'Forest Clearing Kit', type: 'environment', role: 'scene-kit', animations: ['idle'], tags: ['trees', 'rocks', 'campfire'] },
-  { id: 'dungeon_room', name: 'Dungeon Room Kit', type: 'environment', role: 'scene-kit', animations: ['idle'], tags: ['walls', 'torches', 'crate'] }
+  { id: 'dungeon_room', name: 'Dungeon Room Kit', type: 'environment', role: 'scene-kit', animations: ['idle'], tags: ['walls', 'torches', 'crate'] },
+  { id: 'wooden_bridge', name: 'Wooden Bridge', type: 'environment', role: 'structure', animations: ['idle'], tags: ['bridge', 'wood', 'crossing'] },
+  { id: 'split_rail_fence', name: 'Split Rail Fence', type: 'environment', role: 'barrier', animations: ['idle'], tags: ['fence', 'wood', 'village'] },
+  { id: 'quest_signpost', name: 'Quest Signpost', type: 'environment', role: 'navigation', animations: ['idle'], tags: ['sign', 'quest', 'road'] },
+  { id: 'stone_well', name: 'Stone Well', type: 'environment', role: 'village-prop', animations: ['idle'], tags: ['well', 'stone', 'village'] },
+  { id: 'timber_house', name: 'Timber House', type: 'environment', role: 'building', animations: ['idle'], tags: ['house', 'village', 'building'] },
+  { id: 'watch_tower', name: 'Watch Tower', type: 'environment', role: 'building', animations: ['idle'], tags: ['tower', 'wood', 'lookout'] },
+  { id: 'cave_mouth', name: 'Cave Mouth', type: 'environment', role: 'entrance', animations: ['idle'], tags: ['cave', 'rocks', 'entrance'] },
+  { id: 'arcane_portal', name: 'Arcane Portal', type: 'environment', role: 'vfx-prop', animations: ['idle', 'flame'], tags: ['portal', 'magic', 'vfx'] }
 ];
 
 const mats = (() => {
@@ -475,6 +483,82 @@ export function createDungeonRoom() {
   return g;
 }
 
+
+export function createWoodenBridge() {
+  const g = baseGroup('wooden_bridge', 1, 'environment');
+  mesh(g, 'deck', box(2.4,.16,.82), mats.wood, [0,.28,0]);
+  for (let i=-1;i<=1;i++) mesh(g, `deck_plank_${i}`, box(2.45,.06,.18), mats.brown, [0,.39,i*.25]);
+  mesh(g, 'left_rope', cyl(.025,.025,2.55,6), mats.leather, [0,.78,-.52], [0,0,Math.PI/2]);
+  mesh(g, 'right_rope', cyl(.025,.025,2.55,6), mats.leather, [0,.78,.52], [0,0,Math.PI/2]);
+  for (const x of [-1.05,1.05]) for (const z of [-.52,.52]) mesh(g, `post_${x}_${z}`, cyl(.055,.075,.7,6), mats.wood, [x,.62,z]);
+  return g;
+}
+
+export function createSplitRailFence() {
+  const g = baseGroup('split_rail_fence', 1, 'environment');
+  for (const x of [-.85,0,.85]) mesh(g, `post_${x}`, cyl(.055,.075,.86,6), mats.wood, [x,.43,0]);
+  mesh(g, 'top_rail', cyl(.035,.045,1.9,6), mats.wood, [0,.66,0], [0,0,Math.PI/2]);
+  mesh(g, 'lower_rail', cyl(.035,.045,1.9,6), mats.wood, [0,.38,0], [0,0,Math.PI/2]);
+  return g;
+}
+
+export function createQuestSignpost() {
+  const g = baseGroup('quest_signpost', 1, 'environment');
+  mesh(g, 'post', cyl(.06,.08,1.35,6), mats.wood, [0,.67,0]);
+  mesh(g, 'arrow_board', box(.82,.24,.08), mats.wood, [.28,1.08,.02]);
+  mesh(g, 'arrow_tip', cone(.15,.24,3), mats.wood, [.78,1.08,.02], [0,0,-Math.PI/2]);
+  mesh(g, 'quest_marker', sphere(.08,7,4), mats.gold, [-.2,1.32,.04]);
+  return g;
+}
+
+export function createStoneWell() {
+  const g = baseGroup('stone_well', 1, 'environment');
+  mesh(g, 'well_wall', cyl(.46,.52,.46,10), mats.stone, [0,.25,0]);
+  mesh(g, 'dark_water', cyl(.34,.38,.04,10), mats.blue, [0,.5,0]);
+  for (const x of [-.38,.38]) mesh(g, `roof_post_${x}`, cyl(.035,.05,.9,6), mats.wood, [x,.9,0]);
+  mesh(g, 'roof_beam', cyl(.035,.045,.95,6), mats.wood, [0,1.34,0], [0,0,Math.PI/2]);
+  mesh(g, 'little_roof', cone(.62,.42,4), mats.red, [0,1.58,0], [0,Math.PI/4,0]);
+  return g;
+}
+
+export function createTimberHouse() {
+  const g = baseGroup('timber_house', .88, 'environment');
+  mesh(g, 'house_body', box(1.65,1.05,1.25), mats.brown, [0,.55,0]);
+  mesh(g, 'thatched_roof', cone(1.18,.72,4), mats.leather, [0,1.34,0], [0,Math.PI/4,0], [1.25,1,.9]);
+  mesh(g, 'door', box(.34,.58,.06), mats.wood, [0,.35,.65]);
+  mesh(g, 'left_window', box(.22,.2,.055), mats.yellow, [-.52,.72,.66]);
+  mesh(g, 'right_window', box(.22,.2,.055), mats.yellow, [.52,.72,.66]);
+  return g;
+}
+
+export function createWatchTower() {
+  const g = baseGroup('watch_tower', .9, 'environment');
+  for (const x of [-.45,.45]) for (const z of [-.45,.45]) mesh(g, `leg_${x}_${z}`, cyl(.045,.06,1.8,6), mats.wood, [x,.9,z]);
+  mesh(g, 'platform', box(1.25,.16,1.25), mats.wood, [0,1.68,0]);
+  mesh(g, 'roof', cone(.9,.55,4), mats.leather, [0,2.18,0], [0,Math.PI/4,0]);
+  mesh(g, 'ladder', box(.18,1.35,.05), mats.wood, [-.65,.78,.48], [0,0,-.18]);
+  return g;
+}
+
+export function createCaveMouth() {
+  const g = baseGroup('cave_mouth', 1, 'environment');
+  mesh(g, 'left_rock', sphere(.55,7,4), mats.stoneDark, [-.55,.45,0], [0,0,0], [.85,1.35,.9]);
+  mesh(g, 'right_rock', sphere(.55,7,4), mats.stone, [.55,.45,0], [0,0,0], [.85,1.25,.9]);
+  mesh(g, 'top_rock', sphere(.65,7,4), mats.stone, [0,1.04,0], [0,0,0], [1.45,.7,.9]);
+  mesh(g, 'dark_opening', box(.92,.86,.08), mats.black, [0,.48,.42]);
+  return g;
+}
+
+export function createArcanePortal() {
+  const g = baseGroup('arcane_portal', 1, 'environment');
+  mesh(g, 'left_pillar', cyl(.08,.11,1.55,6), mats.stone, [-.48,.78,0]);
+  mesh(g, 'right_pillar', cyl(.08,.11,1.55,6), mats.stone, [.48,.78,0]);
+  mesh(g, 'top_crystal', sphere(.16,7,4), mats.purple, [0,1.62,0]);
+  mesh(g, 'portal_disc', cyl(.43,.43,.055,16), mats.ghost, [0,.82,.02], [Math.PI/2,0,0]);
+  mesh(g, 'portal_core', cyl(.25,.25,.06,16), mats.teal, [0,.82,.04], [Math.PI/2,0,0]);
+  return g;
+}
+
 export function createAssetById(id) {
   const factories = {
     knight_hero: createKnightHero,
@@ -509,7 +593,15 @@ export function createAssetById(id) {
     campfire: createCampfire,
     ruin_arch: createRuinArch,
     forest_clearing: createForestClearing,
-    dungeon_room: createDungeonRoom
+    dungeon_room: createDungeonRoom,
+    wooden_bridge: createWoodenBridge,
+    split_rail_fence: createSplitRailFence,
+    quest_signpost: createQuestSignpost,
+    stone_well: createStoneWell,
+    timber_house: createTimberHouse,
+    watch_tower: createWatchTower,
+    cave_mouth: createCaveMouth,
+    arcane_portal: createArcanePortal
   };
   const factory = factories[id];
   if (!factory) throw new Error(`Unknown asset id: ${id}`);
