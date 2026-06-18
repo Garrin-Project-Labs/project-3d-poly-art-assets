@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D Poly Art Assets — Live Preview</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101827; --panel:#172235; --text:#e5edf7; --muted:#a9b7cc; --gold:#f8cf5a; --blue:#9cc9ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: radial-gradient(circle at top left, #24395d, var(--bg) 46%); color:var(--text); display:grid; place-items:center; padding:32px; }
+    main { width:min(920px, 100%); }
+    .hero { background: color-mix(in srgb, var(--panel) 86%, transparent); border:1px solid rgba(255,255,255,.10); border-radius:28px; padding:32px; box-shadow:0 24px 80px rgba(0,0,0,.35); }
+    h1 { margin:0 0 10px; font-size:clamp(32px, 6vw, 64px); line-height:.95; letter-spacing:-.05em; }
+    p { color:var(--muted); font-size:18px; line-height:1.5; max-width:68ch; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:28px; }
+    a.card { display:block; padding:20px; border-radius:20px; background:rgba(255,255,255,.07); color:var(--text); text-decoration:none; border:1px solid rgba(255,255,255,.1); transition:transform .16s ease, border-color .16s ease, background .16s ease; }
+    a.card:hover { transform:translateY(-2px); border-color:var(--gold); background:rgba(255,255,255,.11); }
+    .eyebrow { color:var(--gold); font-weight:800; text-transform:uppercase; letter-spacing:.1em; font-size:12px; }
+    .title { margin-top:8px; font-size:22px; font-weight:850; }
+    .meta { margin-top:8px; color:var(--muted); font-size:14px; line-height:1.35; }
+    footer { margin-top:18px; color:var(--muted); font-size:13px; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">Live preview</div>
+      <h1>3D Poly Art Assets</h1>
+      <p>A shared catalog of browser-previewable low-poly game assets for the org. First prototype: a procedural knight hero built with Three.js.</p>
+      <div class="grid">
+        <a class="card" href="assets/prototypes/knight_hero/knight_hero_low_poly.html">
+          <div class="eyebrow">Prototype v0</div>
+          <div class="title">⚔️ Knight Hero</div>
+          <div class="meta">Helmet, armor, cape, sword, shield, orbit controls, and turntable animation.</div>
+        </a>
+      </div>
+    </section>
+    <footer>Deployed with GitHub Actions + GitHub Pages.</footer>
+  </main>
+</body>
+</html>

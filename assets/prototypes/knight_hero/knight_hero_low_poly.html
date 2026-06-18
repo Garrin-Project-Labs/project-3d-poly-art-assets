@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Knight Hero — Low Poly Prototype v0</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #101827; color: #e5edf7; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+    #hud { position: fixed; top: 14px; left: 14px; max-width: 360px; padding: 14px 16px; border-radius: 16px; background: rgba(9, 15, 28, .72); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    h1 { margin: 0 0 6px; font-size: 18px; }
+    p { margin: 0; opacity: .82; line-height: 1.35; font-size: 13px; }
+    #buttons { position: fixed; right: 14px; bottom: 14px; display: flex; gap: 10px; }
+    button { border: 0; border-radius: 999px; padding: 10px 14px; color: #101827; background: #f8cf5a; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(0,0,0,.25); }
+    button.secondary { background: #9cc9ff; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <h1>⚔️ Knight Hero — Low Poly Prototype v0</h1>
+    <p>Procedural Three.js asset: helmet, visor, armor, sword, shield, cape, heroic idle turntable. Drag to orbit, scroll to zoom.</p>
+  </div>
+  <div id="buttons">
+    <button class="secondary" id="toggleSpin">Pause turntable</button>
+    <button id="resetView">Reset view</button>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x101827);
+    scene.fog = new THREE.Fog(0x101827, 9, 18);
+
+    const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 100);
+    camera.position.set(4.4, 3.0, 6.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 1.65, 0);
+    controls.enableDamping = true;
+    controls.maxPolarAngle = Math.PI * 0.48;
+    controls.minDistance = 3.2;
+    controls.maxDistance = 10;
+
+    const hemi = new THREE.HemisphereLight(0x9cc9ff, 0x2e2417, 1.8);
+    scene.add(hemi);
+
+    const key = new THREE.DirectionalLight(0xffffff, 2.4);
+    key.position.set(4, 7, 5);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    scene.add(key);
+
+    const rim = new THREE.DirectionalLight(0x6aa9ff, 1.3);
+    rim.position.set(-5, 3, -4);
+    scene.add(rim);
+
+    const mat = {
+      steel: new THREE.MeshStandardMaterial({ color: 0xbfc9d9, roughness: .72, metalness: .45, flatShading: true }),
+      darkSteel: new THREE.MeshStandardMaterial({ color: 0x566276, roughness: .85, metalness: .3, flatShading: true }),
+      blue: new THREE.MeshStandardMaterial({ color: 0x2459b9, roughness: .78, metalness: .08, flatShading: true }),
+      gold: new THREE.MeshStandardMaterial({ color: 0xf8c94b, roughness: .55, metalness: .32, flatShading: true }),
+      leather: new THREE.MeshStandardMaterial({ color: 0x7a4a26, roughness: .9, flatShading: true }),
+      black: new THREE.MeshStandardMaterial({ color: 0x07090d, roughness: .95, flatShading: true }),
+      red: new THREE.MeshStandardMaterial({ color: 0xb53030, roughness: .85, flatShading: true }),
+      ground: new THREE.MeshStandardMaterial({ color: 0x233047, roughness: 1, flatShading: true })
+    };
+
+    const hero = new THREE.Group();
+    hero.name = 'Knight_Hero_Low_Poly_Prototype_v0';
+    scene.add(hero);
+
+    function mesh(name, geometry, material, pos = [0,0,0], rot = [0,0,0], scale = [1,1,1]) {
+      const m = new THREE.Mesh(geometry, material);
+      m.name = name;
+      m.position.set(...pos);
+      m.rotation.set(...rot);
+      m.scale.set(...scale);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      hero.add(m);
+      return m;
+    }
+
+    const box = (w,h,d) => new THREE.BoxGeometry(w,h,d, 1, 1, 1);
+    const cyl = (r1,r2,h,s=6) => new THREE.CylinderGeometry(r1,r2,h,s,1,false);
+    const cone = (r,h,s=6) => new THREE.ConeGeometry(r,h,s,1,false);
+
+    // Feet and legs — offset for a sturdy heroic stance.
+    mesh('left_boot', box(.42,.26,.72), mat.darkSteel, [-.34,.13,.05], [0,.10,0]);
+    mesh('right_boot', box(.42,.26,.72), mat.darkSteel, [.34,.13,.05], [0,-.10,0]);
+    mesh('left_greave', cyl(.19,.24,.92,6), mat.steel, [-.34,.70,0], [0,0,.08]);
+    mesh('right_greave', cyl(.19,.24,.92,6), mat.steel, [.34,.70,0], [0,0,-.08]);
+    mesh('belt', box(1.12,.22,.48), mat.leather, [0,1.23,0]);
+    mesh('gold_buckle', box(.26,.18,.05), mat.gold, [0,1.23,.265]);
+
+    // Torso armor and tunic.
+    mesh('blue_tunic_skirt', cyl(.66,.82,.52,6), mat.blue, [0,1.43,0]);
+    mesh('chest_plate', cyl(.58,.70,1.02,6), mat.steel, [0,1.96,0]);
+    mesh('blue_chest_inset', box(.52,.58,.045), mat.blue, [0,2.02,.55]);
+    mesh('gold_chest_crest', cone(.17,.32,3), mat.gold, [0,2.16,.59], [Math.PI/2,0,Math.PI]);
+
+    // Cape behind body.
+    mesh('red_low_poly_cape', box(1.22,1.62,.10), mat.red, [0,1.58,-.46], [-.18,0,0], [1,1,1]);
+
+    // Shoulders and arms.
+    mesh('left_pauldron', cyl(.33,.41,.38,6), mat.steel, [-.78,2.32,0], [0,0,Math.PI/2]);
+    mesh('right_pauldron', cyl(.33,.41,.38,6), mat.steel, [.78,2.32,0], [0,0,Math.PI/2]);
+    mesh('left_upper_arm', cyl(.16,.19,.72,6), mat.darkSteel, [-.98,1.92,0], [0,0,.28]);
+    mesh('right_upper_arm', cyl(.16,.19,.72,6), mat.darkSteel, [.98,1.92,0], [0,0,-.28]);
+    mesh('left_gauntlet', cyl(.15,.19,.48,6), mat.steel, [-1.16,1.45,.05], [0,0,.08]);
+    mesh('right_gauntlet', cyl(.15,.19,.48,6), mat.steel, [1.18,1.45,.04], [0,0,-.08]);
+
+    // Head and helmet.
+    mesh('neck_guard', cyl(.29,.35,.18,8), mat.darkSteel, [0,2.54,0]);
+    mesh('helmet_dome', cyl(.40,.46,.54,8), mat.steel, [0,2.84,0]);
+    mesh('helmet_top_peak', cone(.39,.32,8), mat.steel, [0,3.27,0]);
+    mesh('black_visor_slit', box(.56,.13,.055), mat.black, [0,2.89,.43]);
+    mesh('helmet_nose_guard', box(.08,.36,.065), mat.darkSteel, [0,2.76,.46]);
+    mesh('red_plume', cone(.16,.70,6), mat.red, [0,3.55,-.04], [0,0,Math.PI]);
+
+    // Sword in right hand.
+    mesh('sword_grip', cyl(.055,.055,.42,6), mat.leather, [1.37,1.30,.12], [.15,0,0]);
+    mesh('sword_crossguard', box(.62,.08,.08), mat.gold, [1.37,1.55,.12], [0,0,.06]);
+    mesh('sword_blade', box(.14,1.35,.055), mat.steel, [1.39,2.22,.12], [0,0,.05]);
+    mesh('sword_tip', cone(.09,.24,4), mat.steel, [1.40,3.02,.12], [0,0,Math.PI/4]);
+
+    // Shield in left hand: squashed cylinder + crest.
+    mesh('kite_shield_body', cyl(.45,.34,.14,6), mat.blue, [-1.33,1.62,.25], [Math.PI/2,.1,0], [1,1.3,1]);
+    mesh('shield_steel_rim', cyl(.49,.38,.08,6), mat.steel, [-1.34,1.62,.24], [Math.PI/2,.1,0], [1,1.34,1]);
+    mesh('shield_gold_cross_vertical', box(.11,.70,.045), mat.gold, [-1.35,1.62,.34]);
+    mesh('shield_gold_cross_horizontal', box(.52,.10,.045), mat.gold, [-1.35,1.66,.35]);
+
+    // Ground plinth.
+    const ground = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.65, .18, 10), mat.ground);
+    ground.name = 'display_plinth';
+    ground.position.y = -.09;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    const runeMat = new THREE.MeshStandardMaterial({ color: 0x9cc9ff, emissive: 0x1f5fb8, emissiveIntensity: .28, roughness: .7, flatShading: true });
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.78, .018, 4, 64), runeMat);
+    ring.name = 'subtle_magic_ring';
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = .03;
+    scene.add(ring);
+
+    let spin = true;
+    document.getElementById('toggleSpin').onclick = () => {
+      spin = !spin;
+      document.getElementById('toggleSpin').textContent = spin ? 'Pause turntable' : 'Resume turntable';
+    };
+    document.getElementById('resetView').onclick = () => {
+      camera.position.set(4.4, 3.0, 6.2);
+      controls.target.set(0, 1.65, 0);
+      controls.update();
+    };
+
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+
+    const clock = new THREE.Clock();
+    function animate() {
+      const dt = clock.getDelta();
+      if (spin) hero.rotation.y += dt * .42;
+      hero.position.y = Math.sin(clock.elapsedTime * 2.2) * .018;
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
