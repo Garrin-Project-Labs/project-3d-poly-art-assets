@@ -3,27 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Knight Hero — Low Poly Prototype v0</title>
+  <title>Knight Hero — Playable 3D Showroom</title>
   <style>
     html, body { margin: 0; height: 100%; overflow: hidden; background: #101827; color: #e5edf7; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
-    #hud { position: fixed; top: 14px; left: 14px; max-width: 360px; padding: 14px 16px; border-radius: 16px; background: rgba(9, 15, 28, .72); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    #hud { position: fixed; top: 14px; left: 14px; max-width: 390px; padding: 14px 16px; border-radius: 16px; background: rgba(9, 15, 28, .72); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,.25); pointer-events: none; }
     h1 { margin: 0 0 6px; font-size: 18px; }
     p { margin: 0; opacity: .82; line-height: 1.35; font-size: 13px; }
-    #buttons { position: fixed; right: 14px; bottom: 14px; display: flex; gap: 10px; }
+    kbd { display: inline-block; min-width: 1.7em; padding: 2px 6px; margin: 0 1px; border-radius: 6px; background: rgba(255,255,255,.12); color: #fff; font-weight: 800; text-align: center; box-shadow: inset 0 -1px 0 rgba(255,255,255,.16); }
+    #buttons { position: fixed; right: 14px; bottom: 14px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
     button { border: 0; border-radius: 999px; padding: 10px 14px; color: #101827; background: #f8cf5a; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(0,0,0,.25); }
     button.secondary { background: #9cc9ff; }
+    #hint { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); color: rgba(229,237,247,.72); font-size: 12px; text-align: center; pointer-events: none; }
     canvas { display: block; }
   </style>
 </head>
 <body>
   <div id="hud">
-    <h1>⚔️ Knight Hero — Low Poly Prototype v0</h1>
-    <p>Procedural Three.js asset: helmet, visor, armor, sword, shield, cape, heroic idle turntable. Drag to orbit, scroll to zoom.</p>
+    <h1>⚔️ Knight Hero — Playable Prototype v1</h1>
+    <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk. Hold <kbd>Shift</kbd> to sprint. Drag to orbit the camera. The knight now has procedural walk, cape sway, and a small 3D courtyard to explore.</p>
   </div>
   <div id="buttons">
-    <button class="secondary" id="toggleSpin">Pause turntable</button>
-    <button id="resetView">Reset view</button>
+    <button class="secondary" id="toggleCamera">Follow camera: on</button>
+    <button id="resetScene">Reset hero</button>
   </div>
+  <div id="hint">Playable in-browser with Three.js — no install needed.</div>
 
   <script type="importmap">
     {
@@ -40,10 +43,10 @@
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x101827);
-    scene.fog = new THREE.Fog(0x101827, 9, 18);
+    scene.fog = new THREE.Fog(0x101827, 16, 36);
 
-    const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 100);
-    camera.position.set(4.4, 3.0, 6.2);
+    const camera = new THREE.PerspectiveCamera(46, innerWidth / innerHeight, 0.1, 120);
+    camera.position.set(5.2, 3.5, 7.8);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -53,23 +56,30 @@
     document.body.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 1.65, 0);
+    controls.target.set(0, 1.55, 0);
     controls.enableDamping = true;
-    controls.maxPolarAngle = Math.PI * 0.48;
-    controls.minDistance = 3.2;
-    controls.maxDistance = 10;
+    controls.dampingFactor = 0.07;
+    controls.maxPolarAngle = Math.PI * 0.49;
+    controls.minDistance = 3.4;
+    controls.maxDistance = 12;
 
-    const hemi = new THREE.HemisphereLight(0x9cc9ff, 0x2e2417, 1.8);
+    const hemi = new THREE.HemisphereLight(0x9cc9ff, 0x2e2417, 1.7);
     scene.add(hemi);
 
-    const key = new THREE.DirectionalLight(0xffffff, 2.4);
-    key.position.set(4, 7, 5);
-    key.castShadow = true;
-    key.shadow.mapSize.set(2048, 2048);
-    scene.add(key);
+    const sun = new THREE.DirectionalLight(0xfff1c2, 2.7);
+    sun.position.set(7, 10, 4);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near = 1;
+    sun.shadow.camera.far = 32;
+    sun.shadow.camera.left = -12;
+    sun.shadow.camera.right = 12;
+    sun.shadow.camera.top = 12;
+    sun.shadow.camera.bottom = -12;
+    scene.add(sun);
 
-    const rim = new THREE.DirectionalLight(0x6aa9ff, 1.3);
-    rim.position.set(-5, 3, -4);
+    const rim = new THREE.DirectionalLight(0x6aa9ff, 1.1);
+    rim.position.set(-7, 4, -5);
     scene.add(rim);
 
     const mat = {
@@ -80,14 +90,15 @@
       leather: new THREE.MeshStandardMaterial({ color: 0x7a4a26, roughness: .9, flatShading: true }),
       black: new THREE.MeshStandardMaterial({ color: 0x07090d, roughness: .95, flatShading: true }),
       red: new THREE.MeshStandardMaterial({ color: 0xb53030, roughness: .85, flatShading: true }),
-      ground: new THREE.MeshStandardMaterial({ color: 0x233047, roughness: 1, flatShading: true })
+      grass: new THREE.MeshStandardMaterial({ color: 0x2f7d52, roughness: 1, flatShading: true }),
+      grassDark: new THREE.MeshStandardMaterial({ color: 0x245b42, roughness: 1, flatShading: true }),
+      stone: new THREE.MeshStandardMaterial({ color: 0x6f7887, roughness: .92, flatShading: true }),
+      stoneDark: new THREE.MeshStandardMaterial({ color: 0x3d4655, roughness: .96, flatShading: true }),
+      wood: new THREE.MeshStandardMaterial({ color: 0x7a4d28, roughness: .9, flatShading: true }),
+      water: new THREE.MeshStandardMaterial({ color: 0x245ca8, emissive: 0x0d315f, emissiveIntensity: .15, roughness: .65, flatShading: true })
     };
 
-    const hero = new THREE.Group();
-    hero.name = 'Knight_Hero_Low_Poly_Prototype_v0';
-    scene.add(hero);
-
-    function mesh(name, geometry, material, pos = [0,0,0], rot = [0,0,0], scale = [1,1,1]) {
+    function addMesh(parent, name, geometry, material, pos = [0,0,0], rot = [0,0,0], scale = [1,1,1]) {
       const m = new THREE.Mesh(geometry, material);
       m.name = name;
       m.position.set(...pos);
@@ -95,7 +106,7 @@
       m.scale.set(...scale);
       m.castShadow = true;
       m.receiveShadow = true;
-      hero.add(m);
+      parent.add(m);
       return m;
     }
 
@@ -103,75 +114,226 @@
     const cyl = (r1,r2,h,s=6) => new THREE.CylinderGeometry(r1,r2,h,s,1,false);
     const cone = (r,h,s=6) => new THREE.ConeGeometry(r,h,s,1,false);
 
-    // Feet and legs — offset for a sturdy heroic stance.
-    mesh('left_boot', box(.42,.26,.72), mat.darkSteel, [-.34,.13,.05], [0,.10,0]);
-    mesh('right_boot', box(.42,.26,.72), mat.darkSteel, [.34,.13,.05], [0,-.10,0]);
-    mesh('left_greave', cyl(.19,.24,.92,6), mat.steel, [-.34,.70,0], [0,0,.08]);
-    mesh('right_greave', cyl(.19,.24,.92,6), mat.steel, [.34,.70,0], [0,0,-.08]);
-    mesh('belt', box(1.12,.22,.48), mat.leather, [0,1.23,0]);
-    mesh('gold_buckle', box(.26,.18,.05), mat.gold, [0,1.23,.265]);
+    function createKnight() {
+      const rig = new THREE.Group();
+      rig.name = 'Knight_Hero_Playable_Rig_Prototype_v1';
 
-    // Torso armor and tunic.
-    mesh('blue_tunic_skirt', cyl(.66,.82,.52,6), mat.blue, [0,1.43,0]);
-    mesh('chest_plate', cyl(.58,.70,1.02,6), mat.steel, [0,1.96,0]);
-    mesh('blue_chest_inset', box(.52,.58,.045), mat.blue, [0,2.02,.55]);
-    mesh('gold_chest_crest', cone(.17,.32,3), mat.gold, [0,2.16,.59], [Math.PI/2,0,Math.PI]);
+      const parts = {};
+      const body = new THREE.Group();
+      rig.add(body);
+      body.position.y = 0;
+      parts.body = body;
 
-    // Cape behind body.
-    mesh('red_low_poly_cape', box(1.22,1.62,.10), mat.red, [0,1.58,-.46], [-.18,0,0], [1,1,1]);
+      const leftLeg = new THREE.Group();
+      const rightLeg = new THREE.Group();
+      leftLeg.position.set(-.34, 1.15, 0);
+      rightLeg.position.set(.34, 1.15, 0);
+      body.add(leftLeg, rightLeg);
+      parts.leftLeg = leftLeg;
+      parts.rightLeg = rightLeg;
+      addMesh(leftLeg, 'left_greave', cyl(.19,.24,.92,6), mat.steel, [0,-.45,0], [0,0,.08]);
+      addMesh(leftLeg, 'left_boot', box(.42,.26,.72), mat.darkSteel, [0,-1.02,.09], [0,.10,0]);
+      addMesh(rightLeg, 'right_greave', cyl(.19,.24,.92,6), mat.steel, [0,-.45,0], [0,0,-.08]);
+      addMesh(rightLeg, 'right_boot', box(.42,.26,.72), mat.darkSteel, [0,-1.02,.09], [0,-.10,0]);
 
-    // Shoulders and arms.
-    mesh('left_pauldron', cyl(.33,.41,.38,6), mat.steel, [-.78,2.32,0], [0,0,Math.PI/2]);
-    mesh('right_pauldron', cyl(.33,.41,.38,6), mat.steel, [.78,2.32,0], [0,0,Math.PI/2]);
-    mesh('left_upper_arm', cyl(.16,.19,.72,6), mat.darkSteel, [-.98,1.92,0], [0,0,.28]);
-    mesh('right_upper_arm', cyl(.16,.19,.72,6), mat.darkSteel, [.98,1.92,0], [0,0,-.28]);
-    mesh('left_gauntlet', cyl(.15,.19,.48,6), mat.steel, [-1.16,1.45,.05], [0,0,.08]);
-    mesh('right_gauntlet', cyl(.15,.19,.48,6), mat.steel, [1.18,1.45,.04], [0,0,-.08]);
+      addMesh(body, 'belt', box(1.12,.22,.48), mat.leather, [0,1.23,0]);
+      addMesh(body, 'gold_buckle', box(.26,.18,.05), mat.gold, [0,1.23,.265]);
+      addMesh(body, 'blue_tunic_skirt', cyl(.66,.82,.52,6), mat.blue, [0,1.43,0]);
+      addMesh(body, 'chest_plate', cyl(.58,.70,1.02,6), mat.steel, [0,1.96,0]);
+      addMesh(body, 'blue_chest_inset', box(.52,.58,.045), mat.blue, [0,2.02,.55]);
+      addMesh(body, 'gold_chest_crest', cone(.17,.32,3), mat.gold, [0,2.16,.59], [Math.PI/2,0,Math.PI]);
 
-    // Head and helmet.
-    mesh('neck_guard', cyl(.29,.35,.18,8), mat.darkSteel, [0,2.54,0]);
-    mesh('helmet_dome', cyl(.40,.46,.54,8), mat.steel, [0,2.84,0]);
-    mesh('helmet_top_peak', cone(.39,.32,8), mat.steel, [0,3.27,0]);
-    mesh('black_visor_slit', box(.56,.13,.055), mat.black, [0,2.89,.43]);
-    mesh('helmet_nose_guard', box(.08,.36,.065), mat.darkSteel, [0,2.76,.46]);
-    mesh('red_plume', cone(.16,.70,6), mat.red, [0,3.55,-.04], [0,0,Math.PI]);
+      const cape = addMesh(body, 'red_low_poly_cape_sways_on_walk', box(1.22,1.62,.10), mat.red, [0,1.58,-.46], [-.18,0,0]);
+      parts.cape = cape;
 
-    // Sword in right hand.
-    mesh('sword_grip', cyl(.055,.055,.42,6), mat.leather, [1.37,1.30,.12], [.15,0,0]);
-    mesh('sword_crossguard', box(.62,.08,.08), mat.gold, [1.37,1.55,.12], [0,0,.06]);
-    mesh('sword_blade', box(.14,1.35,.055), mat.steel, [1.39,2.22,.12], [0,0,.05]);
-    mesh('sword_tip', cone(.09,.24,4), mat.steel, [1.40,3.02,.12], [0,0,Math.PI/4]);
+      const leftArm = new THREE.Group();
+      const rightArm = new THREE.Group();
+      leftArm.position.set(-.78, 2.26, 0);
+      rightArm.position.set(.78, 2.26, 0);
+      body.add(leftArm, rightArm);
+      parts.leftArm = leftArm;
+      parts.rightArm = rightArm;
+      addMesh(leftArm, 'left_pauldron', cyl(.33,.41,.38,6), mat.steel, [0,.06,0], [0,0,Math.PI/2]);
+      addMesh(leftArm, 'left_upper_arm', cyl(.16,.19,.72,6), mat.darkSteel, [-.20,-.36,0], [0,0,.28]);
+      addMesh(leftArm, 'left_gauntlet', cyl(.15,.19,.48,6), mat.steel, [-.38,-.84,.05], [0,0,.08]);
+      addMesh(rightArm, 'right_pauldron', cyl(.33,.41,.38,6), mat.steel, [0,.06,0], [0,0,Math.PI/2]);
+      addMesh(rightArm, 'right_upper_arm', cyl(.16,.19,.72,6), mat.darkSteel, [.20,-.36,0], [0,0,-.28]);
+      addMesh(rightArm, 'right_gauntlet', cyl(.15,.19,.48,6), mat.steel, [.40,-.84,.04], [0,0,-.08]);
 
-    // Shield in left hand: squashed cylinder + crest.
-    mesh('kite_shield_body', cyl(.45,.34,.14,6), mat.blue, [-1.33,1.62,.25], [Math.PI/2,.1,0], [1,1.3,1]);
-    mesh('shield_steel_rim', cyl(.49,.38,.08,6), mat.steel, [-1.34,1.62,.24], [Math.PI/2,.1,0], [1,1.34,1]);
-    mesh('shield_gold_cross_vertical', box(.11,.70,.045), mat.gold, [-1.35,1.62,.34]);
-    mesh('shield_gold_cross_horizontal', box(.52,.10,.045), mat.gold, [-1.35,1.66,.35]);
+      addMesh(body, 'neck_guard', cyl(.29,.35,.18,8), mat.darkSteel, [0,2.54,0]);
+      addMesh(body, 'helmet_dome', cyl(.40,.46,.54,8), mat.steel, [0,2.84,0]);
+      addMesh(body, 'helmet_top_peak', cone(.39,.32,8), mat.steel, [0,3.27,0]);
+      addMesh(body, 'black_visor_slit', box(.56,.13,.055), mat.black, [0,2.89,.43]);
+      addMesh(body, 'helmet_nose_guard', box(.08,.36,.065), mat.darkSteel, [0,2.76,.46]);
+      const plume = addMesh(body, 'red_plume_bobs', cone(.16,.70,6), mat.red, [0,3.55,-.04], [0,0,Math.PI]);
+      parts.plume = plume;
 
-    // Ground plinth.
-    const ground = new THREE.Mesh(new THREE.CylinderGeometry(2.35, 2.65, .18, 10), mat.ground);
-    ground.name = 'display_plinth';
-    ground.position.y = -.09;
-    ground.receiveShadow = true;
-    scene.add(ground);
+      addMesh(rightArm, 'sword_grip', cyl(.055,.055,.42,6), mat.leather, [.59,-.96,.12], [.15,0,0]);
+      addMesh(rightArm, 'sword_crossguard', box(.62,.08,.08), mat.gold, [.59,-.71,.12], [0,0,.06]);
+      addMesh(rightArm, 'sword_blade', box(.14,1.35,.055), mat.steel, [.61,-.04,.12], [0,0,.05]);
+      addMesh(rightArm, 'sword_tip', cone(.09,.24,4), mat.steel, [.62,.76,.12], [0,0,Math.PI/4]);
 
-    const runeMat = new THREE.MeshStandardMaterial({ color: 0x9cc9ff, emissive: 0x1f5fb8, emissiveIntensity: .28, roughness: .7, flatShading: true });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.78, .018, 4, 64), runeMat);
-    ring.name = 'subtle_magic_ring';
-    ring.rotation.x = Math.PI / 2;
-    ring.position.y = .03;
-    scene.add(ring);
+      addMesh(leftArm, 'kite_shield_body', cyl(.45,.34,.14,6), mat.blue, [-.55,-.64,.25], [Math.PI/2,.1,0], [1,1.3,1]);
+      addMesh(leftArm, 'shield_steel_rim', cyl(.49,.38,.08,6), mat.steel, [-.56,-.64,.24], [Math.PI/2,.1,0], [1,1.34,1]);
+      addMesh(leftArm, 'shield_gold_cross_vertical', box(.11,.70,.045), mat.gold, [-.57,-.64,.34]);
+      addMesh(leftArm, 'shield_gold_cross_horizontal', box(.52,.10,.045), mat.gold, [-.57,-.60,.35]);
 
-    let spin = true;
-    document.getElementById('toggleSpin').onclick = () => {
-      spin = !spin;
-      document.getElementById('toggleSpin').textContent = spin ? 'Pause turntable' : 'Resume turntable';
+      rig.scale.setScalar(.86);
+      return { rig, parts };
+    }
+
+    const { rig: hero, parts } = createKnight();
+    scene.add(hero);
+
+    function addEnvironment() {
+      const ground = new THREE.Mesh(new THREE.CircleGeometry(18, 10), mat.grass);
+      ground.name = 'low_poly_courtyard_ground';
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      const path = new THREE.Mesh(new THREE.BoxGeometry(4.2, .05, 18), mat.stoneDark);
+      path.name = 'stone_path_crossing_courtyard';
+      path.position.set(0, .015, 0);
+      path.receiveShadow = true;
+      scene.add(path);
+
+      const crossPath = path.clone();
+      crossPath.name = 'stone_path_crossing_courtyard_side';
+      crossPath.rotation.y = Math.PI / 2;
+      scene.add(crossPath);
+
+      const fountain = new THREE.Group();
+      fountain.name = 'simple_low_poly_fountain';
+      scene.add(fountain);
+      addMesh(fountain, 'fountain_basin', cyl(1.0, 1.15, .35, 10), mat.stone, [4.8,.18,-3.8]);
+      addMesh(fountain, 'fountain_water', cyl(.82,.9,.08,10), mat.water, [4.8,.40,-3.8]);
+      addMesh(fountain, 'fountain_pillar', cyl(.22,.28,.86,8), mat.stoneDark, [4.8,.85,-3.8]);
+      addMesh(fountain, 'fountain_cap', cone(.42,.35,8), mat.stone, [4.8,1.45,-3.8]);
+
+      for (let i = 0; i < 18; i++) {
+        const a = (i / 18) * Math.PI * 2;
+        const radius = 13.4 + (i % 3) * .45;
+        const trunk = new THREE.Group();
+        trunk.position.set(Math.cos(a) * radius, 0, Math.sin(a) * radius);
+        trunk.rotation.y = -a;
+        scene.add(trunk);
+        addMesh(trunk, 'tree_trunk', cyl(.15,.22,1.25,5), mat.wood, [0,.62,0]);
+        addMesh(trunk, 'tree_canopy_low', cone(.85,1.25,7), i % 2 ? mat.grassDark : mat.grass, [0,1.45,0]);
+        addMesh(trunk, 'tree_canopy_high', cone(.65,.95,7), i % 2 ? mat.grass : mat.grassDark, [0,2.05,0]);
+      }
+
+      for (let x = -9; x <= 9; x += 3) {
+        for (const z of [-9, 9]) {
+          addMesh(scene, 'courtyard_wall_block', box(1.7,.7,.5), mat.stone, [x,.35,z]);
+        }
+      }
+      for (let z = -6; z <= 6; z += 3) {
+        for (const x of [-9, 9]) {
+          addMesh(scene, 'courtyard_wall_block_side', box(.5,.7,1.7), mat.stone, [x,.35,z]);
+        }
+      }
+    }
+    addEnvironment();
+
+    const keys = new Set();
+    addEventListener('keydown', event => {
+      const key = event.key.toLowerCase();
+      if (['w','a','s','d','arrowup','arrowleft','arrowdown','arrowright','shift'].includes(key)) event.preventDefault();
+      keys.add(key);
+    });
+    addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
+
+    let followCamera = true;
+    document.getElementById('toggleCamera').onclick = () => {
+      followCamera = !followCamera;
+      document.getElementById('toggleCamera').textContent = `Follow camera: ${followCamera ? 'on' : 'off'}`;
     };
-    document.getElementById('resetView').onclick = () => {
-      camera.position.set(4.4, 3.0, 6.2);
-      controls.target.set(0, 1.65, 0);
+    document.getElementById('resetScene').onclick = () => {
+      hero.position.set(0,0,0);
+      hero.rotation.set(0,0,0);
+      velocity.set(0,0,0);
+      camera.position.set(5.2, 3.5, 7.8);
+      controls.target.set(0,1.55,0);
       controls.update();
     };
+
+    const velocity = new THREE.Vector3();
+    const desired = new THREE.Vector3();
+    const cameraForward = new THREE.Vector3();
+    const cameraRight = new THREE.Vector3();
+    const up = new THREE.Vector3(0,1,0);
+    let walkTime = 0;
+
+    function updateMovement(dt) {
+      desired.set(0,0,0);
+      camera.getWorldDirection(cameraForward);
+      cameraForward.y = 0;
+      cameraForward.normalize();
+      cameraRight.crossVectors(cameraForward, up).normalize();
+
+      if (keys.has('w') || keys.has('arrowup')) desired.add(cameraForward);
+      if (keys.has('s') || keys.has('arrowdown')) desired.sub(cameraForward);
+      if (keys.has('d') || keys.has('arrowright')) desired.add(cameraRight);
+      if (keys.has('a') || keys.has('arrowleft')) desired.sub(cameraRight);
+
+      const moving = desired.lengthSq() > 0;
+      const speed = keys.has('shift') ? 5.0 : 3.0;
+      if (moving) desired.normalize().multiplyScalar(speed);
+      velocity.lerp(desired, 1 - Math.pow(.0008, dt));
+      hero.position.addScaledVector(velocity, dt);
+
+      const limit = 8.15;
+      hero.position.x = THREE.MathUtils.clamp(hero.position.x, -limit, limit);
+      hero.position.z = THREE.MathUtils.clamp(hero.position.z, -limit, limit);
+
+      const horizontalSpeed = velocity.length();
+      if (horizontalSpeed > .06) {
+        const targetYaw = Math.atan2(velocity.x, velocity.z);
+        let delta = targetYaw - hero.rotation.y;
+        delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+        hero.rotation.y += delta * (1 - Math.pow(.0002, dt));
+        walkTime += dt * horizontalSpeed * 3.2;
+      } else {
+        walkTime += dt * .6;
+      }
+
+      return horizontalSpeed;
+    }
+
+    function updateKnightAnimation(dt, speed) {
+      const moving = speed > .12;
+      const stride = Math.sin(walkTime);
+      const counterStride = Math.sin(walkTime + Math.PI);
+      const armSwing = moving ? .65 : .08;
+      const legSwing = moving ? .55 : .03;
+      const bounce = moving ? Math.abs(Math.sin(walkTime * 2)) * .075 : Math.sin(walkTime * 1.4) * .018;
+
+      parts.body.position.y = bounce;
+      parts.body.rotation.z = moving ? Math.sin(walkTime * 2) * .025 : Math.sin(walkTime) * .012;
+      parts.leftLeg.rotation.x = stride * legSwing;
+      parts.rightLeg.rotation.x = counterStride * legSwing;
+      parts.leftArm.rotation.x = counterStride * armSwing;
+      parts.rightArm.rotation.x = stride * armSwing * .72;
+      parts.leftArm.rotation.z = moving ? -.08 + Math.sin(walkTime) * .035 : -.03;
+      parts.rightArm.rotation.z = moving ? .08 + Math.sin(walkTime + Math.PI) * .035 : .03;
+      parts.cape.rotation.x = -.24 + (moving ? Math.abs(Math.sin(walkTime)) * .16 : Math.sin(walkTime * 1.1) * .035);
+      parts.plume.rotation.x = Math.sin(walkTime * 1.8) * .06;
+    }
+
+    const followOffset = new THREE.Vector3(0, 3.15, -6.7);
+    const desiredCamera = new THREE.Vector3();
+    const desiredTarget = new THREE.Vector3();
+    function updateCamera(dt) {
+      desiredTarget.set(hero.position.x, hero.position.y + 1.45, hero.position.z);
+      if (followCamera) {
+        followOffset.set(0, 3.15, -6.7).applyAxisAngle(up, hero.rotation.y);
+        desiredCamera.copy(hero.position).add(followOffset);
+        camera.position.lerp(desiredCamera, 1 - Math.pow(.012, dt));
+      }
+      controls.target.lerp(desiredTarget, 1 - Math.pow(.004, dt));
+      controls.update();
+    }
 
     addEventListener('resize', () => {
       camera.aspect = innerWidth / innerHeight;
@@ -181,10 +343,10 @@
 
     const clock = new THREE.Clock();
     function animate() {
-      const dt = clock.getDelta();
-      if (spin) hero.rotation.y += dt * .42;
-      hero.position.y = Math.sin(clock.elapsedTime * 2.2) * .018;
-      controls.update();
+      const dt = Math.min(clock.getDelta(), .033);
+      const speed = updateMovement(dt);
+      updateKnightAnimation(dt, speed);
+      updateCamera(dt);
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
     }
