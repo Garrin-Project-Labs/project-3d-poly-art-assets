@@ -85,6 +85,40 @@ function baseGroup(id, scale = 1, type = 'asset') {
   return g;
 }
 
+function createStandardHeroRig(id, kit = {}) {
+  const scale = kit.scale ?? .95;
+  const g = baseGroup(id, scale, 'hero');
+  g.userData.rig = 'standard_hero_v1';
+  g.userData.kit = kit.kitName || id;
+
+  const armor = kit.armorMat || kit.bodyMat || mats.steel;
+  const cloth = kit.clothMat || kit.bodyMat || mats.cloth;
+  const bootMat = kit.bootMat || mats.darkSteel;
+  const headMat = kit.headMat || mats.skin;
+  const trim = kit.trimMat || mats.gold;
+
+  // Shared proportions: all heroes use this same base silhouette/origin/forward axis.
+  mesh(g, 'left_boot', box(.34,.20,.50), bootMat, [-.24,.10,.05], [0,.08,0]);
+  mesh(g, 'right_boot', box(.34,.20,.50), bootMat, [.24,.10,.05], [0,-.08,0]);
+  mesh(g, 'left_leg', cyl(.12,.15,.62,6), armor, [-.24,.50,0], [0,0,.04]);
+  mesh(g, 'right_leg', cyl(.12,.15,.62,6), armor, [.24,.50,0], [0,0,-.04]);
+  mesh(g, 'hip_belt', box(.82,.16,.42), kit.beltMat || mats.leather, [0,.84,.02]);
+  mesh(g, 'torso', cyl(.38,.50,.88,6), armor, [0,1.24,0]);
+  mesh(g, 'chest_inset', box(.42,.46,.045), cloth, [0,1.28,.42]);
+  mesh(g, 'left_shoulder', cyl(.18,.24,.25,6), armor, [-.48,1.55,0], [0,0,Math.PI/2]);
+  mesh(g, 'right_shoulder', cyl(.18,.24,.25,6), armor, [.48,1.55,0], [0,0,Math.PI/2]);
+  mesh(g, 'left_arm', cyl(.075,.105,.62,6), kit.armMat || armor, [-.62,1.18,.02], [0,0,-.30]);
+  mesh(g, 'right_arm', cyl(.075,.105,.62,6), kit.armMat || armor, [.62,1.18,.02], [0,0,.30]);
+  mesh(g, 'left_hand', sphere(.075,6,4), headMat, [-.72,.86,.06]);
+  mesh(g, 'right_hand', sphere(.075,6,4), headMat, [.72,.86,.06]);
+  mesh(g, 'neck', cyl(.09,.12,.14,6), headMat, [0,1.70,0]);
+  mesh(g, 'head', sphere(.27,8,5), headMat, [0,1.92,0], [0,0,0], [1,.95,.9]);
+  mesh(g, 'nose_guard', box(.055,.14,.035), kit.faceTrimMat || trim, [0,1.88,.25]);
+  mesh(g, 'eye_slit', box(.28,.045,.026), mats.black, [0,1.95,.25]);
+  return g;
+}
+
+
 function humanoidCore(g, bodyMat, headMat = mats.skin, opts = {}) {
   const bootMat = opts.bootMat || mats.darkSteel;
   mesh(g, 'left_boot', box(.28,.18,.42), bootMat, [-.22,.09,.03]);
@@ -100,64 +134,78 @@ function addHumanoidArms(g, mat, spread = .42) {
   mesh(g, 'right_arm', cyl(.09,.12,.62,6), mat, [.48,1.1,.08], [0,0,spread]);
 }
 
+function addHeroCape(g, mat, size = [.74,.98,.08], y = 1.08) {
+  mesh(g, 'cape', box(...size), mat, [0,y,-.33], [-.18,0,0]);
+}
+
+function addHeroHat(g, mat, trim = mats.gold) {
+  mesh(g, 'wide_hat_brim', cyl(.48,.55,.07,10), mat, [0,2.13,0]);
+  mesh(g, 'hat_cone', cone(.34,.68,8), mat, [0,2.48,0], [0,0,.10]);
+  mesh(g, 'hat_band', cyl(.35,.38,.05,8), trim, [0,2.22,0]);
+}
+
+function addHeroHood(g, mat) {
+  mesh(g, 'hood', cone(.34,.44,7), mat, [0,2.13,0], [0,0,Math.PI]);
+}
+
+function addHeroHelmet(g, mat, trim = mats.gold) {
+  mesh(g, 'helmet_cap', cyl(.28,.32,.24,8), mat, [0,2.08,0]);
+  mesh(g, 'helmet_peak', cone(.27,.28,8), mat, [0,2.34,0]);
+  mesh(g, 'helmet_crest', box(.08,.24,.18), trim, [0,2.42,-.02]);
+}
+
 export function createKnightHero() {
-  const g = baseGroup('knight_hero', .95, 'hero');
-  humanoidCore(g, mats.steel, mats.steel);
-  addHumanoidArms(g, mats.darkSteel, .35);
-  mesh(g, 'blue_tabard', box(.44,.72,.055), mats.blue, [0,1.06,.36]);
-  mesh(g, 'visor', box(.36,.07,.035), mats.black, [0,1.8,.28]);
-  mesh(g, 'helmet_peak', cone(.28,.24,7), mats.steel, [0,2.08,0]);
-  mesh(g, 'sword', box(.08,.92,.04), mats.steel, [.68,1.24,.12], [0,0,-.22]);
-  mesh(g, 'shield', cyl(.32,.3,.08,8), mats.blue, [-.66,1.05,.18], [Math.PI/2,0,0]);
+  const g = createStandardHeroRig('knight_hero', { kitName: 'knight', scale: .96, armorMat: mats.steel, clothMat: mats.blue, bootMat: mats.darkSteel, headMat: mats.steel, trimMat: mats.gold });
+  addHeroHelmet(g, mats.steel, mats.gold);
+  addHeroCape(g, mats.red, [.82,1.05,.08], 1.08);
+  mesh(g, 'tabard_point', cone(.22,.32,3), mats.blue, [0,.78,.43], [Math.PI/2,0,Math.PI]);
+  mesh(g, 'sword', box(.08,1.02,.04), mats.steel, [.82,1.18,.14], [0,0,-.18]);
+  mesh(g, 'sword_tip', cone(.055,.16,4), mats.steel, [.91,1.68,.14], [0,0,Math.PI/4]);
+  mesh(g, 'shield', cyl(.34,.31,.08,8), mats.blue, [-.78,1.14,.18], [Math.PI/2,0,0]);
+  mesh(g, 'shield_cross', box(.09,.52,.045), mats.gold, [-.78,1.14,.25]);
   return g;
 }
 
 export function createMageApprentice() {
-  const g = baseGroup('mage_apprentice', .95, 'hero');
-  humanoidCore(g, mats.deepPurple, mats.skin);
-  mesh(g, 'wide_wizard_hat_brim', cyl(.5,.55,.08,10), mats.purple, [0,2.0,0]);
-  mesh(g, 'wizard_hat_cone', cone(.36,.72,8), mats.purple, [0,2.38,0], [0,0,.12]);
-  mesh(g, 'gold_hat_band', cyl(.37,.39,.06,8), mats.gold, [0,2.1,0]);
-  addHumanoidArms(g, mats.deepPurple, .34);
-  mesh(g, 'staff', cyl(.035,.045,1.65,6), mats.wood, [.72,1.0,.1], [0,0,.12]);
-  mesh(g, 'staff_crystal', sphere(.16,7,4), mats.teal, [.83,1.86,.1]);
-  mesh(g, 'floating_spell_orb', sphere(.12,7,4), mats.gold, [-.62,1.55,.18]);
+  const g = createStandardHeroRig('mage_apprentice', { kitName: 'mage', scale: .94, armorMat: mats.deepPurple, clothMat: mats.purple, bootMat: mats.black, headMat: mats.skin, trimMat: mats.gold });
+  addHeroHat(g, mats.purple, mats.gold);
+  addHeroCape(g, mats.deepPurple, [.78,1.08,.07], 1.08);
+  mesh(g, 'robe_front', box(.50,.70,.05), mats.deepPurple, [0,.98,.43]);
+  mesh(g, 'staff', cyl(.035,.045,1.72,6), mats.wood, [.82,1.08,.1], [0,0,.08]);
+  mesh(g, 'staff_crystal', sphere(.16,7,4), mats.teal, [.90,1.92,.1]);
+  mesh(g, 'floating_spell_orb', sphere(.12,7,4), mats.gold, [-.70,1.58,.22]);
   return g;
 }
 
 export function createForestRanger() {
-  const g = baseGroup('forest_ranger', .95, 'hero');
-  humanoidCore(g, mats.darkGreen, mats.skin);
-  mesh(g, 'green_hood', cone(.34,.44,7), mats.darkGreen, [0,2.0,0], [0,0,Math.PI]);
-  mesh(g, 'cloak', box(.82,1.05,.08), mats.green, [0,.98,-.31], [-.18,0,0]);
-  addHumanoidArms(g, mats.green, .5);
-  mesh(g, 'bow_curve_top', cyl(.025,.035,.88,6), mats.wood, [.78,1.42,.12], [0,0,.34]);
-  mesh(g, 'bow_curve_bottom', cyl(.025,.035,.88,6), mats.wood, [.78,.82,.12], [0,0,-.34]);
-  mesh(g, 'bow_string', box(.025,1.32,.025), mats.white, [.66,1.12,.13]);
-  mesh(g, 'quiver', cyl(.14,.16,.58,6), mats.leather, [-.36,1.25,-.34], [.42,0,.18]);
-  for (let i=0;i<4;i++) mesh(g, `arrow_${i}`, cyl(.012,.012,.48,5), mats.wood, [-.42+i*.05,1.5,-.45], [.42,0,.18]);
+  const g = createStandardHeroRig('forest_ranger', { kitName: 'ranger', scale: .95, armorMat: mats.darkGreen, clothMat: mats.green, bootMat: mats.leather, headMat: mats.skin, trimMat: mats.leather });
+  addHeroHood(g, mats.darkGreen);
+  addHeroCape(g, mats.green, [.78,1.00,.07], 1.08);
+  mesh(g, 'quiver', cyl(.13,.16,.62,6), mats.leather, [-.42,1.36,-.35], [.42,0,.18]);
+  for (let i=0;i<4;i++) mesh(g, `arrow_${i}`, cyl(.012,.012,.54,5), mats.wood, [-.49+i*.05,1.62,-.45], [.42,0,.18]);
+  mesh(g, 'bow_curve_top', cyl(.025,.035,.90,6), mats.wood, [.86,1.48,.15], [0,0,.34]);
+  mesh(g, 'bow_curve_bottom', cyl(.025,.035,.90,6), mats.wood, [.86,.86,.15], [0,0,-.34]);
+  mesh(g, 'bow_string', box(.022,1.34,.022), mats.white, [.74,1.16,.16]);
   return g;
 }
 
 export function createSunPaladin() {
-  const g = baseGroup('sun_paladin', .98, 'hero');
-  humanoidCore(g, mats.gold, mats.skin, { bootMat: mats.steel });
-  addHumanoidArms(g, mats.gold, .32);
-  mesh(g, 'white_cape', box(.74,1.0,.08), mats.white, [0,.98,-.32], [-.14,0,0]);
-  mesh(g, 'sun_halo', cyl(.33,.33,.035,12), mats.gold, [0,2.12,-.06], [Math.PI/2,0,0]);
-  mesh(g, 'warhammer_handle', cyl(.04,.05,.88,6), mats.wood, [.62,1.02,.1], [0,0,-.45]);
-  mesh(g, 'warhammer_head', box(.38,.2,.2), mats.steel, [.82,1.32,.1], [0,0,-.45]);
+  const g = createStandardHeroRig('sun_paladin', { kitName: 'paladin', scale: .98, armorMat: mats.gold, clothMat: mats.white, bootMat: mats.steel, headMat: mats.skin, trimMat: mats.gold });
+  addHeroHelmet(g, mats.gold, mats.white);
+  addHeroCape(g, mats.white, [.82,1.02,.08], 1.08);
+  mesh(g, 'sun_halo', cyl(.34,.34,.035,12), mats.gold, [0,2.38,-.06], [Math.PI/2,0,0]);
+  mesh(g, 'warhammer_handle', cyl(.04,.05,.96,6), mats.wood, [.80,1.07,.13], [0,0,-.42]);
+  mesh(g, 'warhammer_head', box(.40,.22,.20), mats.steel, [.99,1.42,.13], [0,0,-.42]);
   return g;
 }
 
 export function createShadowRogue() {
-  const g = baseGroup('shadow_rogue', .9, 'hero');
-  humanoidCore(g, mats.shadow, mats.skin);
-  addHumanoidArms(g, mats.shadow, .65);
-  mesh(g, 'dark_hood', cone(.32,.42,7), mats.black, [0,2.0,0], [0,0,Math.PI]);
-  mesh(g, 'short_cloak', box(.62,.7,.08), mats.black, [0,1.02,-.31], [-.22,0,0]);
-  mesh(g, 'left_dagger', box(.055,.48,.035), mats.steel, [-.62,.96,.18], [0,0,.35]);
-  mesh(g, 'right_dagger', box(.055,.48,.035), mats.steel, [.62,.96,.18], [0,0,-.35]);
+  const g = createStandardHeroRig('shadow_rogue', { kitName: 'rogue', scale: .92, armorMat: mats.shadow, clothMat: mats.black, bootMat: mats.black, headMat: mats.skin, trimMat: mats.steel });
+  addHeroHood(g, mats.black);
+  addHeroCape(g, mats.black, [.64,.72,.07], 1.05);
+  mesh(g, 'mask', box(.30,.075,.03), mats.black, [0,1.95,.265]);
+  mesh(g, 'left_dagger', box(.055,.52,.035), mats.steel, [-.78,.95,.18], [0,0,.35]);
+  mesh(g, 'right_dagger', box(.055,.52,.035), mats.steel, [.78,.95,.18], [0,0,-.35]);
   return g;
 }
 
