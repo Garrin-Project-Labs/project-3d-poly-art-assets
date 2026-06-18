@@ -23,7 +23,7 @@
     <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk. Tap <kbd>Space</kbd> to jump, hold <kbd>Shift</kbd> to sprint. Drag to orbit the camera. The knight now has procedural walk, jump, cape sway, and a small 3D courtyard to explore.</p>
   </div>
   <div id="buttons">
-    <button class="secondary" id="toggleCamera">Follow camera: on</button>
+    <button class="secondary" id="toggleCamera">Follow camera: off</button>
     <button id="resetScene">Reset hero</button>
   </div>
   <div id="hint">Playable in-browser with Three.js — no install needed.</div>
@@ -239,7 +239,10 @@
     const keys = new Set();
     addEventListener('keydown', event => {
       const key = event.key.toLowerCase();
-      if (['w','a','s','d','arrowup','arrowleft','arrowdown','arrowright','shift',' '].includes(key)) event.preventDefault();
+      if (['w','a','s','d','arrowup','arrowleft','arrowdown','arrowright','shift',' '].includes(key)) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       if (key === ' ' && isGrounded) {
         verticalVelocity = 6.2;
         isGrounded = false;
@@ -249,7 +252,7 @@
     });
     addEventListener('keyup', event => keys.delete(event.key.toLowerCase()));
 
-    let followCamera = true;
+    let followCamera = false;
     document.getElementById('toggleCamera').onclick = () => {
       followCamera = !followCamera;
       document.getElementById('toggleCamera').textContent = `Follow camera: ${followCamera ? 'on' : 'off'}`;
