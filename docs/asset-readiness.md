@@ -59,6 +59,8 @@ Current target: move core heroes/monsters from `prototype` toward `game-ready`. 
 - [ ] Add readiness badges to catalog cards.
 - [x] Tighten polygons on core heroes with `standard_hero_v1`: knight, mage, ranger, paladin, rogue.
 - [x] Attach hero fighting assets to reusable hand weapon anchors.
+- [x] Add reusable equipment catalog/factories for hero held items.
+- [x] Add hero variants on `standard_hero_v1`: healer, necromancer, barbarian, druid.
 - [x] Remove separate blocky hero feet/boots; grounded legs now end cleanly at the floor like the golem silhouette.
 - [ ] Tighten polygons on core monsters: goblin, orc, skeleton, slime, wolf.
 - [ ] Promote polished assets to `game-ready` tier.

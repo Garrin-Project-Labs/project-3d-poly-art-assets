@@ -39,7 +39,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 - [x] Environment: pine tree, rocks, crate, campfire, ruin arch, forest clearing, dungeon room.
 - [x] Add 10 more monsters: spider, boar, bandit, cultist, ghost, treant, minotaur, troll, serpent, golem.
 - [x] Add 8 more environment pieces: bridge, fence, signpost, well, house, tower, cave mouth, portal.
-- [ ] Add hero variants: healer, necromancer, barbarian, druid.
+- [x] Add hero variants: healer, necromancer, barbarian, druid.
 
 ### 4. Demo integration
 
@@ -57,6 +57,7 @@ Add per-asset detail pages with copy-paste import snippets, then add the next en
 - [x] Add attachment and quality metadata.
 - [x] Refactor core heroes onto a standardized modular hero rig.
 - [x] Attach hero weapons/tools to reusable hand anchors.
+- [x] Add reusable equipment catalog/factories for hero held items.
 - [x] Remove separate blocky hero feet/boots; grounded legs now end cleanly at the floor.
 - [ ] Tighten polygons on core monsters.
 - [ ] Add readiness badges to catalog cards.

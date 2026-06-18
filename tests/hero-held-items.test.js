@@ -13,10 +13,14 @@ const HELD_ITEMS = {
   shadow_rogue: [
     ['left_weapon_anchor', 'left_dagger'],
     ['right_weapon_anchor', 'right_dagger']
-  ]
+  ],
+  healer_adept: [['right_weapon_anchor', 'staff']],
+  necromancer: [['right_weapon_anchor', 'staff']],
+  barbarian: [['right_weapon_anchor', 'axe_handle']],
+  druid: [['right_weapon_anchor', 'staff']]
 };
 
-test('hero fighting assets are children of reusable hand weapon anchors', () => {
+test('hero fighting assets are descendants of reusable hand weapon anchors', () => {
   for (const [id, pairs] of Object.entries(HELD_ITEMS)) {
     const asset = createAssetById(id);
     for (const [anchorName, itemName] of pairs) {
@@ -24,7 +28,7 @@ test('hero fighting assets are children of reusable hand weapon anchors', () => 
       const heldItem = asset.getObjectByName(itemName);
       assert.ok(weaponAnchor, `${id} has ${anchorName}`);
       assert.ok(heldItem, `${id} has ${itemName}`);
-      assert.equal(heldItem.parent, weaponAnchor, `${id}.${itemName} is attached to ${anchorName}`);
+      assert.ok(isDescendantOf(heldItem, weaponAnchor), `${id}.${itemName} is attached under ${anchorName}`);
     }
   }
 });
@@ -44,4 +48,11 @@ function assertCloseVector(actual, expected, label) {
   for (const axis of ['x', 'y', 'z']) {
     assert.ok(Math.abs(actual[axis] - expected[axis]) < 1e-9, `${label}.${axis} uses anchor world position`);
   }
+}
+
+function isDescendantOf(child, expectedAncestor) {
+  for (let current = child.parent; current; current = current.parent) {
+    if (current === expectedAncestor) return true;
+  }
+  return false;
 }

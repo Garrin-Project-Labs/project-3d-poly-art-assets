@@ -6,6 +6,10 @@ export const ASSET_CATALOG = [
   { id: 'forest_ranger', name: 'Forest Ranger', type: 'hero', role: 'ranged', animations: ['idle', 'walk', 'attack'], tags: ['hood', 'bow', 'quiver'] },
   { id: 'sun_paladin', name: 'Sun Paladin', type: 'hero', role: 'support', animations: ['idle', 'walk', 'attack'], tags: ['hammer', 'aura', 'plate'] },
   { id: 'shadow_rogue', name: 'Shadow Rogue', type: 'hero', role: 'melee', animations: ['idle', 'walk', 'attack'], tags: ['daggers', 'cloak', 'stealth'] },
+  { id: 'healer_adept', name: 'Healer Adept', type: 'hero', role: 'support', animations: ['idle', 'walk', 'cast'], tags: ['robe', 'staff', 'healing'] },
+  { id: 'necromancer', name: 'Necromancer', type: 'hero', role: 'caster', animations: ['idle', 'walk', 'cast'], tags: ['robe', 'skull', 'shadow-magic'] },
+  { id: 'barbarian', name: 'Barbarian', type: 'hero', role: 'melee', animations: ['idle', 'walk', 'jump', 'attack'], tags: ['axe', 'fur', 'berserker'] },
+  { id: 'druid', name: 'Druid', type: 'hero', role: 'support', animations: ['idle', 'walk', 'cast'], tags: ['staff', 'antlers', 'nature'] },
   { id: 'goblin_grunt', name: 'Goblin Grunt', type: 'monster', role: 'melee', animations: ['idle', 'walk', 'attack'], tags: ['club', 'ears', 'small'] },
   { id: 'orc_brute', name: 'Orc Brute', type: 'monster', role: 'elite', animations: ['idle', 'walk', 'attack'], tags: ['axe', 'tusks', 'large'] },
   { id: 'stone_slime', name: 'Stone Slime', type: 'monster', role: 'hazard', animations: ['idle', 'hop'], tags: ['squat', 'single-eye', 'bouncy'] },
@@ -42,6 +46,19 @@ export const ASSET_CATALOG = [
   { id: 'watch_tower', name: 'Watch Tower', type: 'environment', role: 'building', animations: ['idle'], tags: ['tower', 'wood', 'lookout'] },
   { id: 'cave_mouth', name: 'Cave Mouth', type: 'environment', role: 'entrance', animations: ['idle'], tags: ['cave', 'rocks', 'entrance'] },
   { id: 'arcane_portal', name: 'Arcane Portal', type: 'environment', role: 'vfx-prop', animations: ['idle', 'flame'], tags: ['portal', 'magic', 'vfx'] }
+];
+
+export const EQUIPMENT_CATALOG = [
+  { id: 'longsword', name: 'Longsword', slot: 'hand', tags: ['blade', 'melee'] },
+  { id: 'kite_shield', name: 'Kite Shield', slot: 'hand', tags: ['shield', 'defense'] },
+  { id: 'mage_staff', name: 'Mage Staff', slot: 'hand', tags: ['staff', 'arcane'] },
+  { id: 'ranger_bow', name: 'Ranger Bow', slot: 'hand', tags: ['bow', 'ranged'] },
+  { id: 'warhammer', name: 'Warhammer', slot: 'hand', tags: ['hammer', 'melee'] },
+  { id: 'dagger', name: 'Dagger', slot: 'hand', tags: ['blade', 'light'] },
+  { id: 'healing_staff', name: 'Healing Staff', slot: 'hand', tags: ['staff', 'healing'] },
+  { id: 'skull_staff', name: 'Skull Staff', slot: 'hand', tags: ['staff', 'necromancy'] },
+  { id: 'battle_axe', name: 'Battle Axe', slot: 'hand', tags: ['axe', 'melee'] },
+  { id: 'druid_staff', name: 'Druid Staff', slot: 'hand', tags: ['staff', 'nature'] }
 ];
 
 const mats = (() => {
@@ -163,55 +180,98 @@ function addHeroHelmet(g, mat, trim = mats.gold) {
 }
 
 
+function equipmentGroup(id) {
+  const g = new THREE.Group();
+  g.name = `equipment_${id}`;
+  g.userData.equipmentId = id;
+  g.userData.isEquipment = true;
+  return g;
+}
+
+export function createEquipmentById(id) {
+  const g = equipmentGroup(id);
+  switch (id) {
+    case 'longsword':
+      mesh(g, 'sword', box(.08,.90,.04), mats.steel, [0,.34,.05], [0,0,-.08]);
+      mesh(g, 'sword_tip', cone(.055,.16,4), mats.steel, [0,.86,.05], [0,0,Math.PI/4]);
+      mesh(g, 'sword_guard', box(.28,.055,.05), mats.gold, [0,.02,.05]);
+      break;
+    case 'kite_shield':
+      mesh(g, 'shield', cyl(.34,.31,.08,8), mats.blue, [0,.18,.10], [Math.PI/2,0,0]);
+      mesh(g, 'shield_cross', box(.09,.52,.045), mats.gold, [0,.18,.16]);
+      break;
+    case 'mage_staff':
+      mesh(g, 'staff', cyl(.035,.045,1.72,6), mats.wood, [0,.56,.05], [0,0,.04]);
+      mesh(g, 'staff_crystal', sphere(.16,7,4), mats.teal, [.06,1.42,.05]);
+      break;
+    case 'ranger_bow':
+      mesh(g, 'bow_curve_top', cyl(.025,.035,.90,6), mats.wood, [0,.48,.08], [0,0,.34]);
+      mesh(g, 'bow_curve_bottom', cyl(.025,.035,.90,6), mats.wood, [0,-.14,.08], [0,0,-.34]);
+      mesh(g, 'bow_string', box(.022,1.34,.022), mats.white, [-.12,.18,.09]);
+      break;
+    case 'warhammer':
+      mesh(g, 'warhammer_handle', cyl(.04,.05,.92,6), mats.wood, [0,.36,.06], [0,0,-.12]);
+      mesh(g, 'warhammer_head', box(.42,.22,.20), mats.steel, [.08,.84,.06], [0,0,-.12]);
+      break;
+    case 'dagger':
+      mesh(g, 'dagger', box(.055,.46,.035), mats.steel, [0,.20,.06]);
+      mesh(g, 'dagger_guard', box(.18,.035,.04), mats.darkSteel, [0,-.03,.06]);
+      break;
+    case 'healing_staff':
+      mesh(g, 'staff', cyl(.035,.045,1.62,6), mats.wood, [0,.52,.05], [0,0,.04]);
+      mesh(g, 'staff_crystal', sphere(.15,7,4), mats.gold, [.04,1.32,.05]);
+      mesh(g, 'healing_ring', cyl(.17,.17,.025,10), mats.gold, [.04,1.32,.05], [Math.PI/2,0,0]);
+      break;
+    case 'skull_staff':
+      mesh(g, 'staff', cyl(.035,.045,1.62,6), mats.wood, [0,.52,.05], [0,0,.04]);
+      mesh(g, 'skull_totem', sphere(.14,7,4), mats.bone, [.05,1.32,.05], [0,0,0], [1,.82,.9]);
+      mesh(g, 'purple_orb', sphere(.075,7,4), mats.purple, [.05,1.50,.05]);
+      break;
+    case 'battle_axe':
+      mesh(g, 'axe_handle', cyl(.045,.055,1.05,6), mats.wood, [0,.42,.05], [0,0,-.08]);
+      mesh(g, 'axe_head', box(.38,.34,.08), mats.steel, [.1,.90,.05], [0,0,-.08]);
+      mesh(g, 'axe_spike', cone(.08,.24,5), mats.steel, [.1,1.12,.05]);
+      break;
+    case 'druid_staff':
+      mesh(g, 'staff', cyl(.035,.05,1.58,6), mats.wood, [0,.50,.05], [0,0,.08]);
+      mesh(g, 'staff_crystal', sphere(.11,7,4), mats.poison, [.06,1.28,.05]);
+      mesh(g, 'leaf_charm', sphere(.12,7,4), mats.grass, [.06,1.28,.05], [0,0,0], [.75,1.15,.4]);
+      mesh(g, 'antler_twig_left', cyl(.018,.024,.34,5), mats.wood, [-.08,1.38,.05], [0,0,-.55]);
+      mesh(g, 'antler_twig_right', cyl(.018,.024,.34,5), mats.wood, [.12,1.38,.05], [0,0,.55]);
+      break;
+    default:
+      throw new Error(`Unknown equipment id: ${id}`);
+  }
+  return g;
+}
+
 function heroWeaponAnchor(g, side = 'right') {
   const found = g.getObjectByName(`${side}_weapon_anchor`);
   if (!found) throw new Error(`Missing ${side}_weapon_anchor on ${g.name}`);
   return found;
 }
 
-function addHeroSword(g, side = 'right', name = 'sword') {
+function attachHeroEquipment(g, equipmentId, side = 'right', transform = {}) {
   const h = heroWeaponAnchor(g, side);
-  mesh(h, name, box(.08,.90,.04), mats.steel, [0,.34,.05], [0,0,-.08]);
-  mesh(h, `${name}_tip`, cone(.055,.16,4), mats.steel, [0,.86,.05], [0,0,Math.PI/4]);
-  mesh(h, `${name}_guard`, box(.28,.055,.05), mats.gold, [0,.02,.05]);
-  return h;
+  const equipment = createEquipmentById(equipmentId);
+  equipment.position.set(...(transform.pos || [0,0,0]));
+  equipment.rotation.set(...(transform.rot || [0,0,0]));
+  equipment.scale.set(...(transform.scale || [1,1,1]));
+  equipment.userData.equippedTo = `${side}Hand`;
+  h.add(equipment);
+  return equipment;
 }
 
-function addHeroShield(g, side = 'left') {
-  const h = heroWeaponAnchor(g, side);
-  mesh(h, 'shield', cyl(.34,.31,.08,8), mats.blue, [0,.18,.10], [Math.PI/2,0,0]);
-  mesh(h, 'shield_cross', box(.09,.52,.045), mats.gold, [0,.18,.16]);
-  return h;
-}
-
-function addHeroStaff(g, side = 'right') {
-  const h = heroWeaponAnchor(g, side);
-  mesh(h, 'staff', cyl(.035,.045,1.72,6), mats.wood, [0,.56,.05], [0,0,.04]);
-  mesh(h, 'staff_crystal', sphere(.16,7,4), mats.teal, [.06,1.42,.05]);
-  return h;
-}
-
-function addHeroBow(g, side = 'left') {
-  const h = heroWeaponAnchor(g, side);
-  mesh(h, 'bow_curve_top', cyl(.025,.035,.90,6), mats.wood, [0,.48,.08], [0,0,.34]);
-  mesh(h, 'bow_curve_bottom', cyl(.025,.035,.90,6), mats.wood, [0,-.14,.08], [0,0,-.34]);
-  mesh(h, 'bow_string', box(.022,1.34,.022), mats.white, [-.12,.18,.09]);
-  return h;
-}
-
-function addHeroHammer(g, side = 'right') {
-  const h = heroWeaponAnchor(g, side);
-  mesh(h, 'warhammer_handle', cyl(.04,.05,.92,6), mats.wood, [0,.36,.06], [0,0,-.12]);
-  mesh(h, 'warhammer_head', box(.42,.22,.20), mats.steel, [.08,.84,.06], [0,0,-.12]);
-  return h;
-}
-
+function addHeroSword(g, side = 'right') { return attachHeroEquipment(g, 'longsword', side); }
+function addHeroShield(g, side = 'left') { return attachHeroEquipment(g, 'kite_shield', side); }
+function addHeroStaff(g, side = 'right') { return attachHeroEquipment(g, 'mage_staff', side); }
+function addHeroBow(g, side = 'left') { return attachHeroEquipment(g, 'ranger_bow', side); }
+function addHeroHammer(g, side = 'right') { return attachHeroEquipment(g, 'warhammer', side); }
 function addHeroDagger(g, side = 'right') {
-  const h = heroWeaponAnchor(g, side);
-  const xTilt = side === 'left' ? .22 : -.22;
-  mesh(h, `${side}_dagger`, box(.055,.46,.035), mats.steel, [0,.20,.06], [0,0,xTilt]);
-  mesh(h, `${side}_dagger_guard`, box(.18,.035,.04), mats.darkSteel, [0,-.03,.06]);
-  return h;
+  const equipment = attachHeroEquipment(g, 'dagger', side, { rot: [0,0, side === 'left' ? .22 : -.22] });
+  equipment.getObjectByName('dagger').name = `${side}_dagger`;
+  equipment.getObjectByName('dagger_guard').name = `${side}_dagger_guard`;
+  return equipment;
 }
 
 export function createKnightHero() {
@@ -260,6 +320,48 @@ export function createShadowRogue() {
   mesh(g, 'mask', box(.30,.075,.03), mats.black, [0,1.95,.265]);
   addHeroDagger(g, 'left');
   addHeroDagger(g, 'right');
+  return g;
+}
+
+
+export function createHealerAdept() {
+  const g = createStandardHeroRig('healer_adept', { kitName: 'healer', scale: .94, armorMat: mats.white, clothMat: mats.gold, headMat: mats.skin, trimMat: mats.gold });
+  addHeroHood(g, mats.white);
+  addHeroCape(g, mats.white, [.78,1.02,.07], 1.08);
+  mesh(g, 'gold_sash', box(.52,.10,.055), mats.gold, [0,1.02,.43], [0,0,-.14]);
+  mesh(g, 'healer_halo', cyl(.24,.24,.025,12), mats.gold, [0,2.32,-.05], [Math.PI/2,0,0]);
+  attachHeroEquipment(g, 'healing_staff', 'right');
+  mesh(g, 'floating_spell_orb', sphere(.11,7,4), mats.yellow, [-.70,1.56,.22]);
+  return g;
+}
+
+export function createNecromancer() {
+  const g = createStandardHeroRig('necromancer', { kitName: 'necromancer', scale: .94, armorMat: mats.black, clothMat: mats.deepPurple, headMat: mats.skin, trimMat: mats.bone });
+  addHeroHood(g, mats.black);
+  addHeroCape(g, mats.deepPurple, [.76,1.10,.07], 1.08);
+  mesh(g, 'bone_necklace', cyl(.18,.18,.025,8), mats.bone, [0,1.55,.39], [Math.PI/2,0,0]);
+  attachHeroEquipment(g, 'skull_staff', 'right');
+  mesh(g, 'floating_spell_orb', sphere(.105,7,4), mats.ghost, [-.68,1.50,.22]);
+  return g;
+}
+
+export function createBarbarian() {
+  const g = createStandardHeroRig('barbarian', { kitName: 'barbarian', scale: .99, armorMat: mats.leather, clothMat: mats.red, headMat: mats.skin, trimMat: mats.steel });
+  mesh(g, 'fur_collar', cyl(.48,.54,.16,8), mats.brown, [0,1.58,0]);
+  mesh(g, 'war_paint', box(.25,.045,.026), mats.red, [0,1.96,.255], [0,0,.16]);
+  mesh(g, 'belt_skull', sphere(.09,6,4), mats.bone, [0,.85,.31], [0,0,0], [1,.8,.8]);
+  attachHeroEquipment(g, 'battle_axe', 'right');
+  return g;
+}
+
+export function createDruid() {
+  const g = createStandardHeroRig('druid', { kitName: 'druid', scale: .95, armorMat: mats.bark, clothMat: mats.grass, headMat: mats.skin, trimMat: mats.wood });
+  addHeroCape(g, mats.grassDark, [.78,.95,.07], 1.06);
+  mesh(g, 'leaf_mantle', cyl(.45,.52,.14,8), mats.grass, [0,1.55,0]);
+  mesh(g, 'left_antler', cyl(.025,.035,.42,5), mats.wood, [-.18,2.18,0], [0,0,-.45]);
+  mesh(g, 'right_antler', cyl(.025,.035,.42,5), mats.wood, [.18,2.18,0], [0,0,.45]);
+  attachHeroEquipment(g, 'druid_staff', 'right');
+  mesh(g, 'floating_spell_orb', sphere(.10,7,4), mats.poison, [-.66,1.50,.22]);
   return g;
 }
 
@@ -668,6 +770,10 @@ export function createAssetById(id) {
     forest_ranger: createForestRanger,
     sun_paladin: createSunPaladin,
     shadow_rogue: createShadowRogue,
+    healer_adept: createHealerAdept,
+    necromancer: createNecromancer,
+    barbarian: createBarbarian,
+    druid: createDruid,
     goblin_grunt: createGoblinGrunt,
     orc_brute: createOrcBrute,
     stone_slime: createStoneSlime,
