@@ -17,7 +17,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 - [x] Export `createAssetById(id)` factory.
 - [x] Export `animateAsset(asset, animation, time, delta)` helper.
 - [x] Add `assets/README.md` quick-start docs.
-- [ ] Add per-asset detail pages with copy-paste import snippets.
+- [x] Add per-asset detail pages with copy-paste import snippets.
 - [x] Add downloadable source snippets per asset.
 - [ ] Add GLB export/download pipeline once designs stabilize.
 
@@ -49,7 +49,7 @@ Goal: make the assets easy for another Three.js project to import, preview, and 
 
 ## Recommended next slice
 
-Add per-asset detail pages with copy-paste import snippets, then add the next environment batch. That will make the pack easier for other projects to consume without reading the full source file.
+Next, add the next environment batch or start a guided GLB/export spike. The per-asset detail pages now make the pack easier for other projects to consume without reading the full source file.
 
 ### 5. Asset readiness / polish
 
@@ -59,7 +59,7 @@ Add per-asset detail pages with copy-paste import snippets, then add the next en
 - [x] Attach hero weapons/tools to reusable hand anchors.
 - [x] Add reusable equipment catalog/factories for hero held items.
 - [x] Remove separate blocky hero feet/boots; grounded legs now end cleanly at the floor.
-- [ ] Tighten polygons on core monsters.
-- [ ] Add readiness badges to catalog cards.
+- [x] Tighten polygons on core monsters.
+- [x] Add readiness badges to catalog cards.
 
 - [x] Add first reusable monster family rigs plus six new monsters.

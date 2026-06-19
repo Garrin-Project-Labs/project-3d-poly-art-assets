@@ -48,7 +48,7 @@ Environment assets should expose:
 - `game-ready` — coherent silhouette, scale, bounds, attachments, and animation behavior.
 - `hero` — flagship model with extra polish and stronger silhouette.
 
-Current target: move core heroes/monsters from `prototype` toward `game-ready`. Heroes now share `standard_hero_v1`, a single consistent humanoid base with class-specific gear kits layered on top.
+Current target: move core heroes/monsters from `prototype` toward `game-ready`. Heroes now share `standard_hero_v1`, a single consistent humanoid base with class-specific gear kits layered on top. The first core monster batch is now marked `game-ready` based on stable bounds, attachments, animation safety, and readable silhouettes.
 
 ## To-do
 
@@ -56,14 +56,14 @@ Current target: move core heroes/monsters from `prototype` toward `game-ready`. 
 - [x] Add attachment point metadata.
 - [x] Add quality metadata.
 - [x] Add tests for readiness metadata.
-- [ ] Add readiness badges to catalog cards.
+- [x] Add readiness badges to catalog cards.
 - [x] Tighten polygons on core heroes with `standard_hero_v1`: knight, mage, ranger, paladin, rogue.
 - [x] Attach hero fighting assets to reusable hand weapon anchors.
 - [x] Add reusable equipment catalog/factories for hero held items.
 - [x] Add hero variants on `standard_hero_v1`: healer, necromancer, barbarian, druid.
 - [x] Remove separate blocky hero feet/boots; grounded legs now end cleanly at the floor like the golem silhouette.
-- [ ] Tighten polygons on core monsters: goblin, orc, skeleton, slime, wolf.
-- [ ] Promote polished assets to `game-ready` tier.
+- [x] Tighten polygons on core monsters: goblin, orc, skeleton, slime, wolf.
+- [x] Promote polished core heroes and first core monsters to `game-ready` tier.
 - [ ] Add GLB/export path after the visual language stabilizes.
 
 - [x] Add reusable monster family rigs for humanoid, quadruped, winged, and segmented/crawler monsters.

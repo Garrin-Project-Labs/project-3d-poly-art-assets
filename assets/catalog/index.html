@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>3D Poly Art Assets — Catalog</title>
   <style>
-    :root { color-scheme: dark; --bg:#101827; --panel:#172235; --text:#e5edf7; --muted:#a9b7cc; --gold:#f8cf5a; --blue:#9cc9ff; }
+    :root { color-scheme: dark; --bg:#101827; --panel:#172235; --text:#e5edf7; --muted:#a9b7cc; --gold:#f8cf5a; --blue:#9cc9ff; --green:#8ff0b0; }
     * { box-sizing: border-box; }
     html, body { margin:0; min-height:100%; background:radial-gradient(circle at top left,#24395d,var(--bg) 48%); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,sans-serif; }
     body { padding:28px; }
@@ -16,6 +16,10 @@
     .toolbar { max-width:1120px; margin:0 auto 18px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
     .toolbar a, .toolbar button, select { border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:9px 12px; background:rgba(255,255,255,.07); color:var(--text); text-decoration:none; font-weight:800; cursor:pointer; }
     .toolbar button.active { background:var(--gold); color:#101827; }
+    .import-panel { max-width:1120px; margin:0 auto 22px; padding:18px; border:1px solid rgba(143,240,176,.24); border-radius:22px; background:rgba(143,240,176,.08); }
+    .import-panel strong { color:var(--green); }
+    .import-panel pre { margin:12px 0 0; overflow:auto; padding:14px; border-radius:16px; background:rgba(0,0,0,.28); color:#dfffea; font-size:13px; line-height:1.45; }
+    .copy-button { border:1px solid rgba(143,240,176,.34); border-radius:999px; padding:8px 11px; background:rgba(143,240,176,.13); color:var(--text); font-weight:850; cursor:pointer; }
     select { background:#172235; }
     .grid { max-width:1120px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
     .card { min-height:360px; border:1px solid rgba(255,255,255,.1); border-radius:24px; background:rgba(23,34,53,.84); overflow:hidden; box-shadow:0 22px 70px rgba(0,0,0,.28); }
@@ -28,14 +32,25 @@
     .meta { margin-top:7px; color:var(--muted); font-size:13px; line-height:1.35; }
     .tags { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
     .tag { padding:4px 7px; border-radius:999px; background:rgba(156,201,255,.12); color:#cfe4ff; font-size:11px; font-weight:750; }
+    .actions { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .actions button, .actions a { border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:7px 10px; background:rgba(255,255,255,.07); color:var(--text); text-decoration:none; font-size:12px; font-weight:850; cursor:pointer; }
+    .actions .primary { background:var(--gold); color:#101827; }
+    .readiness { display:inline-flex; margin-top:9px; padding:5px 8px; border-radius:999px; background:rgba(248,207,90,.13); color:#ffe8a1; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:.06em; }
+    .readiness.game-ready { background:rgba(143,240,176,.14); color:#caffe0; }
+    .readiness.hero { background:rgba(255,155,155,.16); color:#ffd1d1; }
   </style>
 </head>
 <body>
   <header>
     <a href="../../index.html">← Back to live preview</a>
     <h1>Asset Catalog</h1>
-    <p>Standalone procedural low-poly asset definitions. These are reusable browser assets for future scenes and gameplay prototypes. Import the library, call <code>createAssetById(id)</code>, and optionally drive it with <code>animateAsset()</code>.</p>
+    <p>A Storybook-style browser catalog for reusable low-poly game assets. The friendly path is to import this whole project as a dependency, then add individual assets by id when your project needs them.</p>
   </header>
+  <section class="import-panel" aria-label="Project dependency import">
+    <strong>Import once, use anywhere:</strong> paste this into a browser game project, then call <code>createAssetById('knight_hero')</code> or any catalog id below.
+    <button class="copy-button" id="copyDependency" type="button">Copy dependency snippet</button>
+    <pre><code id="dependencySnippet"></code></pre>
+  </section>
   <nav class="toolbar" aria-label="Catalog filters">
     <a href="../README.md">Usage README</a>
     <a href="../../docs/asset-roadmap.md">Roadmap</a>
@@ -58,9 +73,13 @@
   </script>
   <script type="module">
     import * as THREE from 'three';
-    import { ASSET_CATALOG, createAssetById, animateAsset } from '../library/low_poly_asset_library.js';
+    import { ASSET_CATALOG, createAssetById, animateAsset, getAssetQualityMeta, getProjectDependencySnippet } from '../poly-art-assets.js';
 
     const catalog = document.getElementById('catalog');
+    const dependencySnippet = document.getElementById('dependencySnippet');
+    const copyDependency = document.getElementById('copyDependency');
+    dependencySnippet.textContent = getProjectDependencySnippet('knight_hero');
+    copyDependency.onclick = () => copyText(dependencySnippet.textContent, copyDependency, 'Copied dependency snippet');
     const animationSelect = document.getElementById('animationSelect');
     let selectedAnimation = 'auto';
 
@@ -80,15 +99,25 @@
       const card = document.createElement('article');
       card.className = 'card';
       card.dataset.type = item.type;
+      const quality = getAssetQualityMeta(item.id);
       card.innerHTML = `
         <div class="viewport" id="view-${item.id}"></div>
         <div class="copy">
           <div class="eyebrow">${item.type} · ${item.role}</div>
           <div class="name">${item.name}</div>
-          <div class="meta">Asset id: <code>${item.id}</code><br>Animations: ${item.animations.join(', ')}<br><a href="../snippets/${item.id}.js" download>Download JS snippet</a></div>
+          <div class="meta">Asset id: <code>${item.id}</code><br>Animations: ${item.animations.join(', ')}</div>
+          <span class="readiness ${quality.tier}">${quality.tier}</span>
           <div class="tags">${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
+          <div class="actions">
+            <a class="primary" href="detail.html?id=${item.id}">Details</a>
+            <button type="button" data-copy-asset="${item.id}">Copy import</button>
+            <button type="button" data-copy-id="${item.id}">Copy id</button>
+            <a href="../snippets/${item.id}.js" download>Advanced: snippet file</a>
+          </div>
         </div>`;
       catalog.appendChild(card);
+      card.querySelector('[data-copy-asset]').onclick = event => copyText(assetImportSnippet(item.id), event.currentTarget, 'Copied import');
+      card.querySelector('[data-copy-id]').onclick = event => copyText(item.id, event.currentTarget, 'Copied id');
       const viewport = card.querySelector('.viewport');
       const preview = mountPreview(viewport, item);
       previews.push(preview);
@@ -112,6 +141,21 @@
         });
       };
     });
+
+    function assetImportSnippet(id) {
+      return `import { createAssetById, animateAsset } from 'poly-art-assets';\n\nconst asset = createAssetById('${id}');\nscene.add(asset);\n\n// In your render loop:\nanimateAsset(asset, 'idle', clock.elapsedTime, clock.getDelta());`;
+    }
+
+    async function copyText(text, button, copiedLabel) {
+      const original = button.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = copiedLabel;
+      } catch {
+        button.textContent = 'Select + copy below';
+      }
+      setTimeout(() => button.textContent = original, 1400);
+    }
 
     function mountPreview(el, item) {
       const scene = new THREE.Scene();

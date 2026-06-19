@@ -9,3 +9,7 @@ The project is still getting started. In Discord, ask the bot to:
 - summarize the project so far
 
 Maintainers can replace this page with the real demo when the project has one.
+
+## Current direction
+
+- [Project dependency imports](project-dependency-imports.md) — treat the catalog like a Storybook-style dependency people can import into their own projects.

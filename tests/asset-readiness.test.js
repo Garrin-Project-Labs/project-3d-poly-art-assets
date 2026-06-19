@@ -23,13 +23,19 @@ test('every asset exposes game-readiness attachment points', () => {
 test('every asset exposes quality metadata for import decisions', () => {
   for (const item of ASSET_CATALOG) {
     const quality = getAssetQualityMeta(item.id);
-    assert.equal(quality.tier, 'prototype');
+    assert.ok(['prototype', 'game-ready', 'hero'].includes(quality.tier), `${item.id} has known readiness tier`);
     assert.equal(quality.forwardAxis, '+Z');
     assert.equal(quality.origin, 'grounded');
     assert.ok(quality.meshCount > 0, `${item.id} has meshes`);
     assert.ok(quality.triangleCount > 0, `${item.id} has triangles`);
     assert.ok(quality.materialCount > 0, `${item.id} has materials`);
     assert.ok(quality.namedPartCount >= quality.meshCount, `${item.id} has named parts`);
+  }
+});
+
+test('polished core monsters have graduated to game-ready tier', () => {
+  for (const id of ['goblin_grunt', 'orc_brute', 'stone_slime', 'bone_skeleton', 'dire_wolf']) {
+    assert.equal(getAssetQualityMeta(id).tier, 'game-ready', `${id} should be game-ready`);
   }
 });
 

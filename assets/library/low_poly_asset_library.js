@@ -1071,6 +1071,23 @@ function createAttachmentPoints(asset, gameplay) {
   return attachments;
 }
 
+const GAME_READY_ASSET_IDS = new Set([
+  'knight_hero',
+  'mage_apprentice',
+  'forest_ranger',
+  'sun_paladin',
+  'shadow_rogue',
+  'healer_adept',
+  'necromancer',
+  'barbarian',
+  'druid',
+  'goblin_grunt',
+  'orc_brute',
+  'stone_slime',
+  'bone_skeleton',
+  'dire_wolf'
+]);
+
 function measureQuality(asset) {
   const materials = new Set();
   let meshCount = 0;
@@ -1086,8 +1103,9 @@ function measureQuality(asset) {
     if (obj.geometry?.index) triangleCount += obj.geometry.index.count / 3;
     else if (position) triangleCount += position.count / 3;
   });
+  const tier = GAME_READY_ASSET_IDS.has(asset.userData.assetId) ? 'game-ready' : 'prototype';
   return {
-    tier: 'prototype',
+    tier,
     forwardAxis: '+Z',
     origin: 'grounded',
     meshCount,

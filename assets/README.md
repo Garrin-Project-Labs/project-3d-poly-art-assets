@@ -2,19 +2,22 @@
 
 Reusable procedural low-poly assets for browser games using Three.js.
 
-## Quick start
+## Recommended: import this project as a dependency
+
+For beginner-friendly projects, treat this repo like a shared asset dependency instead of downloading loose files. Add this import map once, then import assets by id whenever you need them:
 
 ```html
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.165.0/build/three.module.js"
+    "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+    "poly-art-assets": "https://garrin-project-labs.github.io/project-3d-poly-art-assets/assets/poly-art-assets.js"
   }
 }
 </script>
 <script type="module">
   import * as THREE from 'three';
-  import { createAssetById, animateAsset, ASSET_CATALOG } from './assets/library/low_poly_asset_library.js';
+  import { createAssetById, animateAsset, ASSET_CATALOG } from 'poly-art-assets';
 
   const knight = createAssetById('knight_hero');
   scene.add(knight);
@@ -29,6 +32,14 @@ Reusable procedural low-poly assets for browser games using Three.js.
   }
   tick();
 </script>
+```
+
+## Local project import
+
+If you have copied this repo into another project or are developing locally, import from the local entrypoint instead:
+
+```js
+import { createAssetById, animateAsset, ASSET_CATALOG } from './assets/poly-art-assets.js';
 ```
 
 ## API
