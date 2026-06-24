@@ -2,6 +2,7 @@ directory:
   listed: true
   title: "3D Poly Art Assets"
   description: "Public asset workspace for low-poly 3D art experiments."
+  thumbnail: "docs/assets/thumbnails/poly-art-assets.png"
   tags: [assets, art, 3d]
   status: "live"
   sortOrder: 1000
